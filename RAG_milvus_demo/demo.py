@@ -25,8 +25,9 @@ import os
 import sys
 import re
 from dataclasses import dataclass
+import hashlib
 from pathlib import Path
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Iterable
 
 from dotenv import load_dotenv
 
@@ -64,29 +65,57 @@ def get_genai_client():
 	return genai.Client(api_key=api_key)
 
 
-def embed_texts(texts: List[str], model: str) -> List[List[float]]:
-	"""Return embeddings for a list of texts using Gemini embeddings.
+def embed_texts(texts: List[str], model: str, batch_size: int = 64) -> List[List[float]]:
+	"""Return embeddings for a list of texts using Gemini embeddings, batched.
 
-	Tries batch embedding first; falls back to per-item if needed.
+	Falls back to per-item on unexpected batch errors.
 	"""
 	client = get_genai_client()
-	# Prefer latest default per project guidance
 	model_id = model or os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
+	out: List[List[float]] = []
+	n = len(texts)
+	i = 0
+	while i < n:
+		batch = texts[i : i + batch_size]
+		try:
+			resp = client.models.embed_content(model=model_id, contents=batch)
+			if hasattr(resp, "embeddings") and resp.embeddings:
+				out.extend([e.values for e in resp.embeddings])
+			else:
+				# Fallback to per-item if response not as expected
+				for t in batch:
+					r = client.models.embed_content(model=model_id, contents=t)
+					out.append(r.embeddings[0].values)
+		except Exception:
+			# Fallback to per-item on exceptions
+			for t in batch:
+				r = client.models.embed_content(model=model_id, contents=t)
+				out.append(r.embeddings[0].values)
+		i += len(batch)
+	return out
 
-	# Batch attempt
-	try:
-		resp = client.models.embed_content(model=model_id, contents=texts)
-		if hasattr(resp, "embeddings") and resp.embeddings:
-			return [e.values for e in resp.embeddings]
-	except Exception:
-		pass
 
-	# Fallback: single calls
-	vecs: List[List[float]] = []
-	for t in texts:
-		r = client.models.embed_content(model=model_id, contents=t)
-		vecs.append(r.embeddings[0].values)
-	return vecs
+def _chunk_by_length(text: str, max_len: int = 6000) -> List[str]:
+	"""Split text into chunks <= max_len, preferring whitespace boundaries.
+
+	Keeps chunks comfortably under Milvus VARCHAR(8192) default limit.
+	"""
+	chunks: List[str] = []
+	i = 0
+	n = len(text)
+	if n <= max_len:
+		return [text]
+	while i < n:
+		end = min(i + max_len, n)
+		probe_start = min(n, i + int(max_len * 0.8))
+		j = text.rfind(" ", probe_start, end)
+		if j == -1 or j <= i:
+			j = end
+		chunk = text[i:j].strip()
+		if chunk:
+			chunks.append(chunk)
+		i = j
+	return chunks
 
 
 def split_markdown_paragraphs(md: str, min_len: int = 40, max_paragraphs: int = 200) -> List[str]:
@@ -101,11 +130,15 @@ def split_markdown_paragraphs(md: str, min_len: int = 40, max_paragraphs: int = 
 		p = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", p)
 		p = re.sub(r"\[[^\]]*\]\([^)]*\)", "", p)
 		# Skip very short or pure headings
-		if len(p) < min_len or p.startswith("#"):
+		if p.startswith("#"):
 			continue
-		cleaned.append(p)
-		if len(cleaned) >= max_paragraphs:
-			break
+		# Ensure each chunk fits VARCHAR limit headroom
+		for piece in _chunk_by_length(p, max_len=6000):
+			if len(piece) < min_len:
+				continue
+			cleaned.append(piece)
+			if len(cleaned) >= max_paragraphs:
+				return cleaned
 	return cleaned
 
 
@@ -118,17 +151,23 @@ def ensure_milvus_connection(host: str, port: str):
 		raise RuntimeError(f"Failed to connect to Milvus at {host}:{port}. Is the server running? {e}")
 
 
-def create_collection(name: str, dim: int) -> Any:
+def create_collection(name: str, dim: int, *, with_hash: bool = False, drop_before: bool = False) -> Any:
 	if utility.has_collection(name):
-		return Collection(name)
+		if drop_before:
+			utility.drop_collection(name)
+		else:
+			return Collection(name)
 	fields = [
 		FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+	]
+	if with_hash:
+		fields.append(FieldSchema(name="hash", dtype=DataType.VARCHAR, max_length=64))
+	fields.extend([
 		FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=8192),
 		FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=dim),
-	]
+	])
 	schema = CollectionSchema(fields=fields, description="Demo RAG collection")
 	coll = Collection(name=name, schema=schema)
-	# Create an AUTOINDEX for simplicity; COSINE metric is common for embeddings
 	coll.create_index(
 		field_name="vector",
 		index_params={"index_type": "AUTOINDEX", "metric_type": "COSINE", "params": {}},
@@ -136,10 +175,37 @@ def create_collection(name: str, dim: int) -> Any:
 	return coll
 
 
-def insert_documents(coll: Any, texts: List[str], vectors: List[List[float]]):
+def _get_non_pk_fields(coll: Any) -> List[str]:
+	names: List[str] = []
+	for f in coll.schema.fields:
+		if getattr(f, "is_primary", False):
+			continue
+		names.append(f.name)
+	return names
+
+
+def insert_documents(coll: Any, texts: List[str], vectors: List[List[float]], batch_size: int = 256, hashes: List[str] | None = None):
 	assert len(texts) == len(vectors)
-	# Use dict to avoid field-order pitfalls with auto_id
-	coll.insert({"text": texts, "vector": vectors})
+	n = len(texts)
+	i = 0
+	field_order = _get_non_pk_fields(coll)
+	while i < n:
+		tb = texts[i : i + batch_size]
+		vb = vectors[i : i + batch_size]
+		payload: List[Any] = []
+		for field in field_order:
+			if field == "text":
+				payload.append(tb)
+			elif field == "vector":
+				payload.append(vb)
+			elif field == "hash":
+				hb = (hashes or [""] * n)[i : i + batch_size]
+				payload.append(hb)
+			else:
+				# Unknown extra field; insert empty placeholders if needed
+				payload.append([None] * len(tb))
+		coll.insert(payload)
+		i += len(tb)
 	coll.flush()
 
 
@@ -173,19 +239,57 @@ def _print_collection_preview(coll: Any, limit: int = 5):
 		print(f"Preview failed: {e}")
 
 
-def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_rag", embed_model: str | None = None, *, index_only: bool = False, show: int = 0):
+def _iter_markdown_files(dir_path: Path) -> Iterable[Path]:
+	for p in dir_path.rglob("*.md"):
+		if p.is_file():
+			yield p
+
+
+def _sha256(text: str) -> str:
+	return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_rag", embed_model: str | None = None, *, index_only: bool = False, show: int = 0, md_dir: Path | None = None, embed_batch: int = 64, insert_batch: int = 256, drop_before: bool = False, dedup: bool = False, query_only: bool = False):
 	host = os.getenv("MILVUS_HOST", "localhost")
 	port = os.getenv("MILVUS_PORT", "19530")
 	ensure_milvus_connection(host, port)
 
+	# Query-only path: do not index; just preview and/or search existing collection
+	if query_only:
+		if not utility.has_collection(collection_name):
+			print(f"Collection '{collection_name}' does not exist. Nothing to query.")
+			return
+		coll = Collection(collection_name)
+		if show and show > 0:
+			print(f"Collection '{collection_name}' entities={coll.num_entities}")
+			_print_collection_preview(coll, limit=show)
+		if not query:
+			return
+		# Embed and search
+		qvec = embed_texts([query], embed_model, batch_size=1)[0]
+		hits = search(coll, qvec, top_k=5)
+		print("Top results:")
+		for score, text in hits:
+			print(f"- score={score:.4f} | {text[:180].replace('\n',' ')}")
+		return
+
 	# Prepare corpus
-	if md_file and Path(md_file).exists():
+	corpus: List[str] = []
+	if md_dir and Path(md_dir).exists():
+		total_files = 0
+		for f in _iter_markdown_files(Path(md_dir)):
+			total_files += 1
+			md_text = f.read_text(encoding="utf-8", errors="ignore")
+			parts = split_markdown_paragraphs(md_text)
+			if parts:
+				corpus.extend(parts)
+		if total_files:
+			print(f"Scanned {total_files} markdown file(s) under {md_dir} -> {len(corpus)} chunk(s)")
+	elif md_file and Path(md_file).exists():
 		md_text = Path(md_file).read_text(encoding="utf-8")
 		corpus = split_markdown_paragraphs(md_text)
 		if not corpus:
 			print("No suitable paragraphs found in markdown; using sample texts.")
-	else:
-		corpus = []
 
 	if not corpus:
 		corpus = [
@@ -197,17 +301,43 @@ def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_r
 		]
 
 	# Get a sample embedding to determine dimension
-	sample_vec = embed_texts([corpus[0]], embed_model)[0]
+	sample_vec = embed_texts([corpus[0]], embed_model, batch_size=embed_batch)[0]
 	dim = len(sample_vec)
-	coll = create_collection(collection_name, dim)
+	coll = create_collection(collection_name, dim, with_hash=True, drop_before=drop_before)
 
-	# If empty, insert documents
-	if coll.num_entities == 0:
-		vectors = embed_texts(corpus, embed_model)
-		insert_documents(coll, corpus, vectors)
-		print(f"Inserted {len(corpus)} documents into collection '{collection_name}'.")
+	# Build dedup set (existing hashes) if requested and hash field exists
+	existing_hashes: set[str] = set()
+	non_pk_fields = _get_non_pk_fields(coll)
+	if dedup and "hash" in non_pk_fields:
+		try:
+			coll.load()
+			rows = coll.query(expr="id >= 0", output_fields=["hash"], limit=100000)
+			for r in rows:
+				h = r.get("hash")
+				if h:
+					existing_hashes.add(h)
+		except Exception as e:
+			print(f"WARN: Could not fetch existing hashes for dedup: {e}")
+
+	# Prepare hashes and optional dedup
+	hashes = [_sha256(t) for t in corpus]
+	if dedup and existing_hashes:
+		filtered_corpus: List[str] = []
+		filtered_hashes: List[str] = []
+		for t, h in zip(corpus, hashes):
+			if h in existing_hashes:
+				continue
+			filtered_corpus.append(t)
+			filtered_hashes.append(h)
+		corpus = filtered_corpus
+		hashes = filtered_hashes
+
+	if not corpus:
+		print("No new documents to insert after dedup.")
 	else:
-		print(f"Collection '{collection_name}' already has {coll.num_entities} entities; skipping insert.")
+		vectors = embed_texts(corpus, embed_model, batch_size=embed_batch)
+		insert_documents(coll, corpus, vectors, batch_size=insert_batch, hashes=hashes)
+		print(f"Inserted {len(corpus)} documents into collection '{collection_name}'. Entities now: {coll.num_entities}")
 
 	# Show preview of stored rows if requested
 	if show and show > 0:
@@ -231,21 +361,34 @@ def main():
 
 	parser = argparse.ArgumentParser(description="Milvus RAG demo using Gemini embeddings")
 	parser.add_argument("--file", type=str, default=None, help="Path to a Markdown file to index")
+	parser.add_argument("--dir", type=str, default=None, help="Path to a directory of Markdown files (recursive)")
 	parser.add_argument("--query", type=str, default=None, help="Query text. Omit or use --index-only to skip querying.")
 	parser.add_argument("--collection", type=str, default="demo_rag", help="Milvus collection name")
 	parser.add_argument("--embed-model", type=str, default=os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001"), help="Gemini embedding model")
 	parser.add_argument("--index-only", action="store_true", help="Run chunking+embedding only; skip query")
+	parser.add_argument("--query-only", action="store_true", help="Only run a query against an existing collection (no indexing)")
 	parser.add_argument("--show", type=int, default=0, help="After indexing, print N stored rows from the collection")
+	parser.add_argument("--embed-batch", type=int, default=64, help="Embedding batch size")
+	parser.add_argument("--insert-batch", type=int, default=256, help="Insert batch size")
+	parser.add_argument("--drop-before", action="store_true", help="Drop collection first (recreate with hash field)")
+	parser.add_argument("--dedup", action="store_true", help="Skip inserting chunks that already exist (by text hash)")
 	args = parser.parse_args()
 
 	md_file = Path(args.file) if args.file else None
+	md_dir = Path(args.dir) if args.dir else None
 	demo(
 		md_file,
 		args.query,
 		collection_name=args.collection,
 		embed_model=args.embed_model,
 		index_only=args.index_only,
+		query_only=args.query_only,
 		show=args.show,
+		md_dir=md_dir,
+		embed_batch=args.embed_batch,
+		insert_batch=args.insert_batch,
+		drop_before=args.drop_before,
+		dedup=args.dedup,
 	)
 
 
