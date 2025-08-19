@@ -1,0 +1,882 @@
+[
+  {
+    "entry_type": "article",
+    "key": "Nicolo2016",
+    "title": "Clinical outcomes related to protein delivery in a critically ill population: a multicenter, multinational observation study",
+    "authors": [
+      {
+        "family": "Nicolo",
+        "full": "Nicolo M"
+      },
+      {
+        "family": "Heyland",
+        "full": "Heyland DK"
+      },
+      {
+        "family": "Chittams",
+        "full": "Chittams J"
+      },
+      {
+        "family": "Sammarco",
+        "full": "Sammarco T"
+      },
+      {
+        "family": "Compher",
+        "full": "Compher C"
+      }
+    ],
+    "year": 2016,
+    "journal": "JPEN J Parenter Enteral Nutr",
+    "volume": "40",
+    "issue": "1",
+    "pages": "45-51",
+    "doi": "10.1177/0148607115583675"
+  },
+  {
+    "entry_type": "article",
+    "key": "Compher2022",
+    "title": "Guidelines for the provision of nutrition support therapy in the adult critically ill patient: the American Society for Parenteral and Enteral Nutrition",
+    "authors": [
+      {
+        "family": "Compher",
+        "full": "Compher C"
+      },
+      {
+        "family": "Bingham",
+        "full": "Bingham AL"
+      },
+      {
+        "family": "McCall",
+        "full": "McCall M"
+      }
+    ],
+    "year": 2022,
+    "journal": "JPEN J Parenter Enteral Nutr",
+    "volume": "46",
+    "issue": "1",
+    "pages": "12-41",
+    "doi": "10.1002/jpen.2267"
+  },
+  {
+    "entry_type": "article",
+    "key": "Singer2019",
+    "title": "ESPEN guideline on clinical nutrition in the intensive care unit",
+    "authors": [
+      {
+        "family": "Singer",
+        "full": "Singer P"
+      },
+      {
+        "family": "Blaser",
+        "full": "Blaser AR"
+      },
+      {
+        "family": "Berger",
+        "full": "Berger MM"
+      }
+    ],
+    "year": 2019,
+    "journal": "Clin Nutr",
+    "volume": "38",
+    "issue": "1",
+    "pages": "48-79",
+    "doi": "10.1016/j.clnu.2018.08.037"
+  },
+  {
+    "entry_type": "article",
+    "key": "Singer2023",
+    "title": "ESPEN practical and partially revised guideline: Clinical nutrition in the intensive care unit",
+    "authors": [
+      {
+        "family": "Singer",
+        "full": "Singer P"
+      },
+      {
+        "family": "Blaser",
+        "full": "Blaser AR"
+      },
+      {
+        "family": "Berger",
+        "full": "Berger MM"
+      }
+    ],
+    "year": 2023,
+    "journal": "Clin Nutr",
+    "volume": "42",
+    "issue": "9",
+    "pages": "1671-1689",
+    "doi": "10.1016/j.clnu.2023.07.011"
+  },
+  {
+    "entry_type": "article",
+    "key": "Ridley2018",
+    "title": "Nutrition therapy in Australia and New Zealand intensive care units: an international comparison study",
+    "authors": [
+      {
+        "family": "Ridley",
+        "full": "Ridley EJ"
+      },
+      {
+        "family": "Peake",
+        "full": "Peake SL"
+      },
+      {
+        "family": "Jarvis",
+        "full": "Jarvis M"
+      }
+    ],
+    "year": 2018,
+    "journal": "JPEN J Parenter Enteral Nutr",
+    "volume": "42",
+    "issue": "8",
+    "pages": "1349-1357",
+    "doi": "10.1002/jpen.1163"
+  },
+  {
+    "entry_type": "article",
+    "key": "Murthy2023",
+    "title": "Protein delivery in mechanically ventilated adults in Australia and New Zealand: current practice",
+    "authors": [
+      {
+        "family": "Murthy",
+        "full": "Murthy TA"
+      },
+      {
+        "family": "Bellomo",
+        "full": "Bellomo R"
+      },
+      {
+        "family": "Chapman",
+        "full": "Chapman MJ"
+      }
+    ],
+    "year": 2023,
+    "journal": "Crit Care Resusc",
+    "volume": "23",
+    "issue": "4",
+    "pages": "386-393",
+    "doi": "10.51893/2021.4.0A3"
+  },
+  {
+    "entry_type": "article",
+    "key": "WHO2007",
+    "title": "Protein and amino acid requirements in human nutrition",
+    "year": 2007,
+    "journal": "World Health Organ Tech Rep Ser",
+    "volume": "(935)",
+    "pages": "1-265"
+  },
+  {
+    "entry_type": "article",
+    "key": "Heyland2023",
+    "title": "The effect of higher protein dosing in critically ill patients with high nutritional risk (EFFORT Protein)",
+    "authors": [
+      {
+        "family": "Heyland",
+        "full": "Heyland DK"
+      },
+      {
+        "family": "Patel",
+        "full": "Patel J"
+      },
+      {
+        "family": "Compher",
+        "full": "Compher C"
+      }
+    ],
+    "year": 2023,
+    "journal": "Lancet",
+    "volume": "401",
+    "issue": "10376",
+    "pages": "568-576",
+    "doi": "10.1016/S0140-6736(22)02469-2"
+  },
+  {
+    "entry_type": "article",
+    "key": "Bels2024",
+    "title": "Effect of high versus standard protein provision on functional recovery in people with critical illness (PRECISe)",
+    "authors": [
+      {
+        "family": "Bels",
+        "full": "Bels JLM"
+      },
+      {
+        "family": "Thiessen",
+        "full": "Thiessen S"
+      },
+      {
+        "family": "van Gassel",
+        "full": "van Gassel RJJ"
+      }
+    ],
+    "year": 2024,
+    "journal": "Lancet",
+    "volume": "404",
+    "issue": "10453",
+    "pages": "659-669",
+    "doi": "10.1016/S014.0-6736(24)01304-7"
+  },
+  {
+    "entry_type": "article",
+    "key": "Lee2024",
+    "title": "The effects of higher versus lower protein delivery in critically ill patients: an updated systematic review and meta-analysis of randomized controlled trials with trial sequential analysis",
+    "authors": [
+      {
+        "family": "Lee",
+        "full": "Lee ZY"
+      },
+      {
+        "family": "Dresen",
+        "full": "Dresen E"
+      },
+      {
+        "family": "Lew",
+        "full": "Lew CCH"
+      }
+    ],
+    "year": 2024,
+    "journal": "Crit Care",
+    "volume": "28",
+    "issue": "1",
+    "pages": "15",
+    "doi": "10.1186/s13054-023-04783-1"
+  },
+  {
+    "entry_type": "article",
+    "key": "Chapple2021",
+    "title": "Use of a high-protein enteral nutrition formula to increase protein delivery to critically ill patients: a randomized, blinded, parallel-group, feasibility trial",
+    "authors": [
+      {
+        "family": "Chapple",
+        "full": "Chapple LS"
+      },
+      {
+        "family": "Summers",
+        "full": "Summers MJ"
+      },
+      {
+        "family": "Bellomo",
+        "full": "Bellomo R"
+      }
+    ],
+    "year": 2021,
+    "journal": "JPEN J Parenter Enteral Nutr",
+    "volume": "45",
+    "issue": "4",
+    "pages": "699-709",
+    "doi": "10.1002/jpen.2059"
+  },
+  {
+    "entry_type": "article",
+    "key": "Summers2023",
+    "title": "Study protocol for TARGET protein: the effect of augmented administration of enteral protein to critically ill adults on clinical outcomes: a cluster randomised, cross-sectional, double cross-over, clinical trial",
+    "authors": [
+      {
+        "family": "Summers",
+        "full": "Summers MJ"
+      },
+      {
+        "family": "Chapple",
+        "full": "Chapple LS"
+      },
+      {
+        "family": "Bellomo",
+        "full": "Bellomo R"
+      }
+    ],
+    "year": 2023,
+    "journal": "Crit Care Resusc",
+    "volume": "25",
+    "issue": "3",
+    "pages": "147-154",
+    "doi": "10.1016/j.ccrj.2023.08.001"
+  },
+  {
+    "entry_type": "article",
+    "key": "Zaloumis2025",
+    "title": "TARGET Protein: the effect of augmented administration of enteral protein to critically ill adults on clinical outcomes-statistical analysis plan for a cluster randomized, cross-sectional, double cross-over, clinical trial",
+    "authors": [
+      {
+        "family": "Zaloumis",
+        "full": "Zaloumis S"
+      },
+      {
+        "family": "Summers",
+        "full": "Summers MJ"
+      },
+      {
+        "family": "Presneill",
+        "full": "Presneill JJ"
+      }
+    ],
+    "year": 2025,
+    "journal": "Trials",
+    "volume": "26",
+    "issue": "1",
+    "pages": "42",
+    "doi": "10.1186/s13063-025-08759-0"
+  },
+  {
+    "entry_type": "article",
+    "key": "McKenzie2025",
+    "title": "Reporting of cluster randomised crossover trials: extension of the CONSORT 2010 statement with explanation and elaboration",
+    "authors": [
+      {
+        "family": "McKenzie",
+        "full": "McKenzie JE"
+      },
+      {
+        "family": "Taljaard",
+        "full": "Taljaard M"
+      },
+      {
+        "family": "Hemming",
+        "full": "Hemming K"
+      }
+    ],
+    "year": 2025,
+    "journal": "BMJ",
+    "volume": "388",
+    "pages": "080472",
+    "doi": "10.1136/bmj-2024-080472"
+  },
+  {
+    "entry_type": "misc",
+    "key": "AIHW2024",
+    "title": "National death index",
+    "year": 2024,
+    "url": "https://www.aihw.gov.au/about-our-data/our-data-collections/nationaldeath-index"
+  },
+  {
+    "entry_type": "article",
+    "key": "Schandelmaier2020",
+    "title": "Development of the Instrument to assess the Credibility of Effect Modification Analyses (ICEMAN) in randomized controlled trials and meta-analyses",
+    "authors": [
+      {
+        "family": "Schandelmaier",
+        "full": "Schandelmaier S"
+      },
+      {
+        "family": "Briel",
+        "full": "Briel M"
+      },
+      {
+        "family": "Varadhan",
+        "full": "Varadhan R"
+      }
+    ],
+    "year": 2020,
+    "journal": "CMAJ",
+    "volume": "192",
+    "issue": "32",
+    "pages": "E901-E906",
+    "doi": "10.1503/cmaj.200077"
+  },
+  {
+    "entry_type": "article",
+    "key": "Chapman2018",
+    "title": "Energy-dense versus routine enteral nutrition in the critically ill",
+    "authors": [
+      {
+        "family": "Chapman",
+        "full": "Chapman M"
+      },
+      {
+        "family": "Peake",
+        "full": "Peake SL"
+      },
+      {
+        "family": "Bellomo",
+        "full": "Bellomo R"
+      }
+    ],
+    "year": 2018,
+    "journal": "N Engl J Med",
+    "volume": "379",
+    "issue": "19",
+    "pages": "1823-1834",
+    "doi": "10.1056/NEJMoal811687"
+  },
+  {
+    "entry_type": "article",
+    "key": "Congdon2017",
+    "title": "Quantile regression for overdispersed count data: a hierarchical method",
+    "authors": [
+      {
+        "family": "Congdon",
+        "full": "Congdon P"
+      }
+    ],
+    "year": 2017,
+    "journal": "J Stat Distrib Appl",
+    "volume": "4",
+    "issue": "1",
+    "pages": "18",
+    "doi": "10.1186/s40488-017-0073-4"
+  },
+  {
+    "entry_type": "article",
+    "key": "Stoppe2023",
+    "title": "The impact of higher protein dosing on outcomes in critically ill patients with acute kidney injury: a post hoc analysis of the EFFORT protein trial",
+    "authors": [
+      {
+        "family": "Stoppe",
+        "full": "Stoppe C"
+      },
+      {
+        "family": "Patel",
+        "full": "Patel JJ"
+      },
+      {
+        "family": "Zarbock",
+        "full": "Zarbock A"
+      }
+    ],
+    "year": 2023,
+    "journal": "Crit Care",
+    "volume": "27",
+    "issue": "1",
+    "pages": "399",
+    "doi": "10.1186/s13054-023-04663-8"
+  },
+  {
+    "entry_type": "article",
+    "key": "Chapple2022",
+    "title": "Muscle protein synthesis after protein administration in critical illness",
+    "authors": [
+      {
+        "family": "Chapple",
+        "full": "Chapple LS"
+      },
+      {
+        "family": "Kouw",
+        "full": "Kouw IWK"
+      },
+      {
+        "family": "Summers",
+        "full": "Summers MJ"
+      }
+    ],
+    "year": 2022,
+    "journal": "Am J Respir Crit Care Med",
+    "volume": "206",
+    "issue": "6",
+    "pages": "740-749",
+    "doi": "10.1164/rccm.202112-27800C"
+  },
+  {
+    "entry_type": "article",
+    "key": "Haines2024",
+    "title": "Association between urea trajectory and protein dose in critically ill adults: asecondary exploratory analysis of the effort protein trial (RE-EFFORT)",
+    "authors": [
+      {
+        "family": "Haines",
+        "full": "Haines RW"
+      },
+      {
+        "family": "Prowle",
+        "full": "Prowle JR"
+      },
+      {
+        "family": "Day",
+        "full": "Day A"
+      }
+    ],
+    "year": 2024,
+    "journal": "Crit Care",
+    "volume": "28",
+    "issue": "1",
+    "pages": "24",
+    "doi": "10.1186/s13054-024-04799-1"
+  },
+  {
+    "entry_type": "article",
+    "key": "Long2024",
+    "title": "Urea cycle disorders in critically III adults",
+    "authors": [
+      {
+        "family": "Long",
+        "full": "Long MT"
+      },
+      {
+        "family": "Kruser",
+        "full": "Kruser JM"
+      },
+      {
+        "family": "Quinonez",
+        "full": "Quinonez SC"
+      }
+    ],
+    "year": 2024,
+    "journal": "Curr Opin Clin Nutr Metab Care",
+    "volume": "27",
+    "issue": "2",
+    "pages": "184-191",
+    "doi": "10.1097/MCO.0000000000000992"
+  },
+  {
+    "entry_type": "article",
+    "key": "Deane2024",
+    "title": "Editorial: the interaction between protein delivery and blood urea and ammonia during critical illness",
+    "authors": [
+      {
+        "family": "Deane",
+        "full": "Deane AM"
+      },
+      {
+        "family": "Casaer",
+        "full": "Casaer MP"
+      }
+    ],
+    "year": 2024,
+    "journal": "Curr Opin Clin Nutr Metab Care",
+    "volume": "27",
+    "issue": "2",
+    "pages": "144-146",
+    "doi": "10.1097/MCO.0000000000001016"
+  },
+  {
+    "entry_type": "article",
+    "key": "Vanhorebeek2023",
+    "title": "Nutrition and autophagy deficiency in critical illness",
+    "authors": [
+      {
+        "family": "Vanhorebeek",
+        "full": "Vanhorebeek I"
+      },
+      {
+        "family": "Casaer",
+        "full": "Casaer M"
+      },
+      {
+        "family": "Gunst",
+        "full": "Gunst J"
+      }
+    ],
+    "year": 2023,
+    "journal": "Curr Opin Crit Care",
+    "volume": "29",
+    "issue": "4",
+    "pages": "306-314",
+    "doi": "10.1097/MCC.0000000000001056"
+  },
+  {
+    "entry_type": "article",
+    "key": "Hermans2013",
+    "title": "Effect of tolerating macronutrient deficit on the development of intensive-care unit acquired weakness: a subanalysis of the EPaNIC trial",
+    "authors": [
+      {
+        "family": "Hermans",
+        "full": "Hermans G"
+      },
+      {
+        "family": "Casaer",
+        "full": "Casaer MP"
+      },
+      {
+        "family": "Clerckx",
+        "full": "Clerckx B"
+      }
+    ],
+    "year": 2013,
+    "journal": "Lancet Respir Med",
+    "volume": "1",
+    "issue": "8",
+    "pages": "621-629",
+    "doi": "10.1016/S22132600(13)70183-8"
+  },
+  {
+    "entry_type": "article",
+    "key": "Lewis2021",
+    "title": "Sample sizes for cluster-randomised trials with continuous outcomes: accounting for uncertainty in a single intra-cluster correlation estimate",
+    "authors": [
+      {
+        "family": "Lewis",
+        "full": "Lewis J"
+      },
+      {
+        "family": "Julious",
+        "full": "Julious SA"
+      }
+    ],
+    "year": 2021,
+    "journal": "Stat Methods Med Res",
+    "volume": "30",
+    "issue": "11",
+    "pages": "2459-2470",
+    "doi": "10.1177/09622802211037073"
+  },
+  {
+    "entry_type": "article",
+    "key": "Arnup2017",
+    "title": "Understanding the cluster randomised crossover design",
+    "authors": [
+      {
+        "family": "Arnup",
+        "full": "Arnup SJ"
+      },
+      {
+        "family": "McKenzie",
+        "full": "McKenzie JE"
+      },
+      {
+        "family": "Hemming",
+        "full": "Hemming K"
+      }
+    ],
+    "year": 2017,
+    "journal": "Trials",
+    "volume": "18",
+    "issue": "1",
+    "pages": "381",
+    "doi": "10.1186/$13063-017-2113-2"
+  },
+  {
+    "entry_type": "article",
+    "key": "Hemming2024",
+    "title": "What type of cluster randomized trial for which setting?",
+    "authors": [
+      {
+        "family": "Hemming",
+        "full": "Hemming K"
+      },
+      {
+        "family": "Copas",
+        "full": "Copas A"
+      },
+      {
+        "family": "Forbes",
+        "full": "Forbes A"
+      }
+    ],
+    "year": 2024,
+    "journal": "J Epidemiol Popul Health",
+    "volume": "72",
+    "issue": "1",
+    "pages": "202195",
+    "doi": "10.1016/j.jeph.2024.202195"
+  },
+  {
+    "entry_type": "article",
+    "key": "Arabi2023",
+    "title": "Replacing protein via enteral nutrition in a stepwise approach in critically ill patients: the REPLENISH randomized clinical trial protocol",
+    "authors": [
+      {
+        "family": "Arabi",
+        "full": "Arabi YM"
+      },
+      {
+        "family": "Al-Dorzi",
+        "full": "Al-Dorzi HM"
+      },
+      {
+        "family": "Sadat",
+        "full": "Sadat M"
+      }
+    ],
+    "year": 2023,
+    "journal": "Trials",
+    "volume": "24",
+    "issue": "1",
+    "pages": "485",
+    "doi": "10.1186/$13063-023-07507-6"
+  },
+  {
+    "entry_type": "article",
+    "key": "Reignier2023",
+    "title": "Low versus standard calorie and protein feeding in ventilated adults with shock: a randomised, controlled, multicentre, open-label, parallel-group trial (NUTRIREA-3)",
+    "authors": [
+      {
+        "family": "Reignier",
+        "full": "Reignier J"
+      },
+      {
+        "family": "Plantefeve",
+        "full": "Plantefeve G"
+      },
+      {
+        "family": "Mira",
+        "full": "Mira JP"
+      }
+    ],
+    "year": 2023,
+    "journal": "Lancet Respir Med",
+    "volume": "11",
+    "issue": "7",
+    "pages": "602-612",
+    "doi": "10.1016/S2213-2600(23)00092-9"
+  },
+  {
+    "entry_type": "article",
+    "key": "McPeake2022",
+    "title": "Hospital re-admission after critical care survival: a systematic review and meta-analysis",
+    "authors": [
+      {
+        "family": "McPeake",
+        "full": "McPeake J"
+      },
+      {
+        "family": "Bateson",
+        "full": "Bateson M"
+      },
+      {
+        "family": "Christie",
+        "full": "Christie F"
+      }
+    ],
+    "year": 2022,
+    "journal": "Anaesthesia",
+    "volume": "77",
+    "issue": "4",
+    "pages": "475-485",
+    "doi": "10.1111/anae.15644"
+  },
+  {
+    "entry_type": "article",
+    "key": "Bruhn2024",
+    "title": "Challenges and limitations of using ventilator-free days as an outcome in critical care trials",
+    "authors": [
+      {
+        "family": "Bruhn",
+        "full": "Bruhn A"
+      },
+      {
+        "family": "Kattan",
+        "full": "Kattan E"
+      },
+      {
+        "family": "Cavalcanti",
+        "full": "Cavalcanti AB"
+      }
+    ],
+    "year": 2024,
+    "journal": "Crit Care Sci",
+    "issue": "36",
+    "pages": "e20240088en",
+    "doi": "10.62675/2965-2774.20240088-en"
+  },
+  {
+    "entry_type": "article",
+    "key": "Myles2017",
+    "title": "Validation of days at home as an outcome measure after surgery: a prospective cohort study in Australia",
+    "authors": [
+      {
+        "family": "Myles",
+        "full": "Myles PS"
+      },
+      {
+        "family": "Shulman",
+        "full": "Shulman MA"
+      },
+      {
+        "family": "Heritier",
+        "full": "Heritier S"
+      }
+    ],
+    "year": 2017,
+    "journal": "BMJ Open",
+    "volume": "7",
+    "issue": "8",
+    "pages": "e015828",
+    "doi": "10.1136/bmjopen-2017-015828"
+  },
+  {
+    "entry_type": "article",
+    "key": "Fanaroff2018",
+    "title": "Days alive and out of hospital: exploring a patient-centered, pragmatic outcome in a clinical trial of patients with acute coronary syndromes",
+    "authors": [
+      {
+        "family": "Fanaroff",
+        "full": "Fanaroff AC"
+      },
+      {
+        "family": "Cyr",
+        "full": "Cyr D"
+      },
+      {
+        "family": "Neely",
+        "full": "Neely ML"
+      }
+    ],
+    "year": 2018,
+    "journal": "Circ Cardiovasc Qual Outcomes",
+    "volume": "11",
+    "issue": "12",
+    "pages": "e004755",
+    "doi": "10.1161/CIRCOUTCOMES.118.004755"
+  },
+  {
+    "entry_type": "article",
+    "key": "SerpaNeto2024",
+    "title": "Alternative approaches to analyzing ventilator-free days, mortality and duration of ventilation in critical care research",
+    "authors": [
+      {
+        "family": "Serpa Neto",
+        "full": "Serpa Neto A"
+      },
+      {
+        "family": "Bailey",
+        "full": "Bailey M"
+      },
+      {
+        "family": "Shehabi",
+        "full": "Shehabi Y"
+      }
+    ],
+    "year": 2024,
+    "journal": "Crit Care Sci",
+    "issue": "36",
+    "pages": "e20240246en",
+    "doi": "10.62675/2965-2774.20240246-en"
+  },
+  {
+    "entry_type": "article",
+    "key": "Granholm2023",
+    "title": "Use of days alive without life support and similar count outcomes in randomised clinical trials",
+    "authors": [
+      {
+        "family": "Granholm",
+        "full": "Granholm A"
+      },
+      {
+        "family": "Kaas-Hansen",
+        "full": "Kaas-Hansen BS"
+      },
+      {
+        "family": "Lange",
+        "full": "Lange T"
+      }
+    ],
+    "year": 2023,
+    "journal": "BMC Med Res Methodol",
+    "volume": "23",
+    "issue": "1",
+    "pages": "139",
+    "doi": "10.1186/$12874-023-01963-z"
+  },
+  {
+    "entry_type": "article",
+    "key": "Young2020",
+    "title": "Effect of stress ulcer prophylaxis with proton pump inhibitors vs histamine-2 receptor blockers on in-hospital mortality among ICU patients receiving invasive mechanical ventilation: the PEPTIC randomized clinical trial",
+    "authors": [
+      {
+        "family": "Young",
+        "full": "Young PJ"
+      },
+      {
+        "family": "Bagshaw",
+        "full": "Bagshaw SM"
+      },
+      {
+        "family": "Forbes",
+        "full": "Forbes AB"
+      }
+    ],
+    "year": 2020,
+    "journal": "JAMA",
+    "volume": "323",
+    "issue": "7",
+    "pages": "616-626",
+    "doi": "10.1001/jama.2019.22190"
+  }
+]
