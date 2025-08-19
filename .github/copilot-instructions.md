@@ -21,3 +21,7 @@
 - this project uses docling to create a multi-modal RAG. The online documentation is at https://docling-project.github.io/docling/
 - first we will process pdf files into md format. The pdf files will be in the input/ folder
 - the vector database is milvus. Check the latest documentation for more details at https://milvus.io/docs/pt/build_RAG_with_milvus_and_docling.md
+
+# chatbot
+- the chatbot will be created using ADK google agents
+- check the latest documentation for using ADK google agents at https://google.github.io/adk-docs/

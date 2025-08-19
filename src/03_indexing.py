@@ -395,6 +395,14 @@ def main():
 	parser.add_argument("--insert-batch", type=int, default=256, help="Insert batch size")
 	parser.add_argument("--drop-before", action="store_true", help="Drop and recreate collection")
 	parser.add_argument("--show", type=int, default=3, help="Preview first N chunks")
+	# Include section context in text sent for embedding to preserve meaning
+	parser.add_argument(
+		"--no-prepend-section",
+		action="store_false",
+		dest="prepend_section",
+		help="Do not prepend the section path to the text before embedding",
+	)
+	parser.set_defaults(prepend_section=True)
 	parser.add_argument("--dry-run", action="store_true", help="Only parse and preview; do not embed or insert")
 	args = parser.parse_args()
 
@@ -419,7 +427,10 @@ def main():
 		return
 
 	# Compute embeddings
-	texts = [c.text for c in chunks]
+	if args.prepend_section:
+		texts = [(f"{c.section}\n\n{c.text}" if c.section else c.text) for c in chunks]
+	else:
+		texts = [c.text for c in chunks]
 	vectors = embed_texts(texts, model=args.embed_model, batch_size=args.embed_batch)
 	if not vectors:
 		print("No embeddings produced.", file=sys.stderr)
