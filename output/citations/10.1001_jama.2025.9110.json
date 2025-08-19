@@ -1,0 +1,341 @@
+{
+  "DOI": "10.1001/jama.2025.9110",
+  "type": "journal-article",
+  "title": "Augmented Enteral Protein During Critical Illness",
+  "container-title": "JAMA",
+  "publisher": "American Medical Association (AMA)",
+  "issued": {
+    "date-parts": [
+      [
+        2025,
+        7,
+        22
+      ]
+    ]
+  },
+  "author": [
+    {
+      "given": "Matthew J.",
+      "family": "Summers"
+    },
+    {
+      "given": "Lee-anne S.",
+      "family": "Chapple"
+    },
+    {
+      "given": "Amalia",
+      "family": "Karahalios"
+    },
+    {
+      "given": "Rinaldo",
+      "family": "Bellomo"
+    },
+    {
+      "given": "Marianne J.",
+      "family": "Chapman"
+    },
+    {
+      "given": "Suzie",
+      "family": "Ferrie"
+    },
+    {
+      "given": "Mark E.",
+      "family": "Finnis"
+    },
+    {
+      "given": "Craig",
+      "family": "French"
+    },
+    {
+      "given": "Sally",
+      "family": "Hurford"
+    },
+    {
+      "given": "Nima",
+      "family": "Kakho"
+    },
+    {
+      "given": "Matthew J.",
+      "family": "Maiden"
+    },
+    {
+      "given": "Stephanie N.",
+      "family": "O’Connor"
+    },
+    {
+      "given": "Sandra L.",
+      "family": "Peake"
+    },
+    {
+      "given": "Jeffrey J.",
+      "family": "Presneill"
+    },
+    {
+      "given": "Emma J.",
+      "family": "Ridley"
+    },
+    {
+      "given": "An",
+      "family": "Tran-Duy"
+    },
+    {
+      "given": "Patricia J.",
+      "family": "Williams"
+    },
+    {
+      "given": "Paul J.",
+      "family": "Young"
+    },
+    {
+      "given": "Sophie",
+      "family": "Zaloumis"
+    },
+    {
+      "given": "Adam M.",
+      "family": "Deane"
+    },
+    {
+      "given": "Suzie",
+      "family": "Ferrie"
+    },
+    {
+      "given": "Imogen",
+      "family": "Asser"
+    },
+    {
+      "given": "Nerissa",
+      "family": "Brown"
+    },
+    {
+      "given": "Lee-anne",
+      "family": "Chapple"
+    },
+    {
+      "given": "Sarah",
+      "family": "Doherty"
+    },
+    {
+      "given": "Mark",
+      "family": "Finnis"
+    },
+    {
+      "given": "Mahni",
+      "family": "Foster"
+    },
+    {
+      "given": "Kathleen",
+      "family": "Glasby"
+    },
+    {
+      "given": "Rhea",
+      "family": "Louis"
+    },
+    {
+      "given": "Fiona",
+      "family": "McDonald"
+    },
+    {
+      "given": "Mark",
+      "family": "Plummer"
+    },
+    {
+      "given": "Stephanie",
+      "family": "O’Connor"
+    },
+    {
+      "given": "Justine",
+      "family": "Rivett"
+    },
+    {
+      "given": "Matthew",
+      "family": "Summers"
+    },
+    {
+      "given": "Sandra",
+      "family": "Peake"
+    },
+    {
+      "given": "Catherine",
+      "family": "Kurenda"
+    },
+    {
+      "given": "Srilatha",
+      "family": "Vemparala"
+    },
+    {
+      "given": "Patricia",
+      "family": "Williams"
+    },
+    {
+      "given": "Rinaldo",
+      "family": "Bellomo"
+    },
+    {
+      "given": "Christine",
+      "family": "Choong"
+    },
+    {
+      "given": "Glenn",
+      "family": "Eastwood"
+    },
+    {
+      "given": "Kate",
+      "family": "Hamilton"
+    },
+    {
+      "given": "Leah",
+      "family": "Peck"
+    },
+    {
+      "given": "Helen",
+      "family": "Young"
+    },
+    {
+      "given": "Deborah",
+      "family": "Barge"
+    },
+    {
+      "given": "Alice",
+      "family": "Barrese"
+    },
+    {
+      "given": "Kathleen",
+      "family": "Byrne"
+    },
+    {
+      "given": "Adam",
+      "family": "Deane"
+    },
+    {
+      "given": "Kate",
+      "family": "Fetterplace"
+    },
+    {
+      "given": "Olivia",
+      "family": "Gigli"
+    },
+    {
+      "given": "Matthew",
+      "family": "Maiden"
+    },
+    {
+      "given": "Jeffrey",
+      "family": "Presneill"
+    },
+    {
+      "given": "Brianna",
+      "family": "Tascone"
+    },
+    {
+      "given": "Kym",
+      "family": "Wittholz"
+    },
+    {
+      "given": "Samantha",
+      "family": "Bates"
+    },
+    {
+      "given": "Craig",
+      "family": "French"
+    },
+    {
+      "given": "Haindavi",
+      "family": "Muppa"
+    },
+    {
+      "given": "Giang",
+      "family": "Nguyen"
+    },
+    {
+      "given": "Stephanie",
+      "family": "Schembri"
+    },
+    {
+      "given": "Stacey",
+      "family": "Hawker"
+    },
+    {
+      "given": "Michelle",
+      "family": "Horton"
+    },
+    {
+      "given": "Lynda",
+      "family": "Jaques"
+    },
+    {
+      "given": "Nima",
+      "family": "Kakho"
+    },
+    {
+      "given": "Jemma",
+      "family": "Trickey"
+    },
+    {
+      "given": "April",
+      "family": "Aguilar"
+    },
+    {
+      "given": "Melissa",
+      "family": "Butt"
+    },
+    {
+      "given": "Mary Rose",
+      "family": "Sol Cruz"
+    },
+    {
+      "given": "Kirsha",
+      "family": "Delaney"
+    },
+    {
+      "given": "Dushanka",
+      "family": "Hettige"
+    },
+    {
+      "given": "Sally",
+      "family": "Hurford"
+    },
+    {
+      "given": "Reece",
+      "family": "Latonio"
+    },
+    {
+      "given": "Eden",
+      "family": "Lesona"
+    },
+    {
+      "given": "Joradee",
+      "family": "Marmol"
+    },
+    {
+      "given": "Leanlove",
+      "family": "Navarra"
+    },
+    {
+      "given": "Shan",
+      "family": "Qiu"
+    },
+    {
+      "given": "Nola",
+      "family": "Wood-Harris"
+    },
+    {
+      "given": "Paul",
+      "family": "Young"
+    },
+    {
+      "given": "Amalia",
+      "family": "Karahalios"
+    },
+    {
+      "given": "Sophie",
+      "family": "Zaloumis"
+    }
+  ],
+  "ISSN": [
+    "0098-7484"
+  ],
+  "page": "319",
+  "volume": "334",
+  "issue": "4",
+  "URL": "https://doi.org/10.1001/jama.2025.9110"
+}
