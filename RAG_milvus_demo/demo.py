@@ -209,21 +209,47 @@ def insert_documents(coll: Any, texts: List[str], vectors: List[List[float]], ba
 	coll.flush()
 
 
-def search(coll: Any, query_vec: List[float], top_k: int = 5) -> List[Tuple[float, str]]:
+def search(coll: Any, query_vec: List[float], top_k: int = 5) -> List[Tuple[float, str, str | None]]:
 	coll.load()
+	# Choose available output fields
+	field_names = [f.name for f in coll.schema.fields]
+	ofields = ["text"]
+	if "section" in field_names:
+		ofields.append("section")
 	search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
 	results = coll.search(
 		data=[query_vec],
 		anns_field="vector",
 		param=search_params,
 		limit=top_k,
-		output_fields=["text"],
+		output_fields=ofields,
 	)
-	hits: List[Tuple[float, str]] = []
+	out: List[Tuple[float, str, str | None]] = []
 	for hit in results[0]:
 		text = hit.entity.get("text")
-		hits.append((hit.distance, text))
-	return hits
+		section = hit.entity.get("section") if "section" in ofields else None
+		out.append((hit.distance, text, section))
+	return out
+
+
+def _rerank_hits_by_substring(
+	hits: List[Tuple[float, str, str | None]],
+	prefs_text: List[str] | None,
+	prefs_section: List[str] | None = None,
+) -> List[Tuple[float, str, str | None]]:
+	if not prefs_text and not prefs_section:
+		return hits
+	prefs_text_l = [p.lower() for p in (prefs_text or [])]
+	prefs_sec_l = [p.lower() for p in (prefs_section or [])]
+	def _key(item: Tuple[float, str, str | None]) -> Tuple[int, int, float]:
+		score, txt, sec = item
+		t = (txt or "").lower()
+		s = (sec or "").lower()
+		boost_sec = any(p in s for p in prefs_sec_l) if prefs_sec_l else False
+		boost_txt = any(p in t for p in prefs_text_l) if prefs_text_l else False
+		# Prefer section boost most, then text boost, then score desc
+		return (0 if boost_sec else 1, 0 if boost_txt else 1, -score)
+	return sorted(hits, key=_key)
 
 
 def _print_collection_preview(coll: Any, limit: int = 5):
@@ -249,7 +275,24 @@ def _sha256(text: str) -> str:
 	return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_rag", embed_model: str | None = None, *, index_only: bool = False, show: int = 0, md_dir: Path | None = None, embed_batch: int = 64, insert_batch: int = 256, drop_before: bool = False, dedup: bool = False, query_only: bool = False):
+def demo(
+	md_file: Path | None,
+	query: str | None,
+	collection_name: str = "demo_rag",
+	embed_model: str | None = None,
+	*,
+	index_only: bool = False,
+	show: int = 0,
+	md_dir: Path | None = None,
+	embed_batch: int = 64,
+	insert_batch: int = 256,
+	drop_before: bool = False,
+	dedup: bool = False,
+	query_only: bool = False,
+	top_k: int = 5,
+	prefer_substr: List[str] | None = None,
+	prefer_section: List[str] | None = None,
+):
 	host = os.getenv("MILVUS_HOST", "localhost")
 	port = os.getenv("MILVUS_PORT", "19530")
 	ensure_milvus_connection(host, port)
@@ -267,10 +310,15 @@ def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_r
 			return
 		# Embed and search
 		qvec = embed_texts([query], embed_model, batch_size=1)[0]
-		hits = search(coll, qvec, top_k=5)
+		hits = search(coll, qvec, top_k=top_k)
+		hits = _rerank_hits_by_substring(hits, prefer_substr, prefer_section)
 		print("Top results:")
-		for score, text in hits:
-			print(f"- score={score:.4f} | {text[:180].replace('\n',' ')}")
+		for score, text, section in hits:
+			snippet = (text or "").replace("\n", " ")
+			if len(snippet) > 180:
+				snippet = snippet[:180]
+			prefix = f"[{section}] " if section else ""
+			print(f"- score={score:.4f} | {prefix}{snippet}")
 		return
 
 	# Prepare corpus
@@ -350,10 +398,15 @@ def demo(md_file: Path | None, query: str | None, collection_name: str = "demo_r
 
 	# Query flow
 	qvec = embed_texts([query], embed_model)[0]
-	hits = search(coll, qvec, top_k=5)
+	hits = search(coll, qvec, top_k=top_k)
+	hits = _rerank_hits_by_substring(hits, prefer_substr, prefer_section)
 	print("Top results:")
-	for score, text in hits:
-		print(f"- score={score:.4f} | {text[:180].replace('\n',' ')}")
+	for score, text, section in hits:
+		snippet = (text or "").replace("\n", " ")
+		if len(snippet) > 180:
+			snippet = snippet[:180]
+		prefix = f"[{section}] " if section else ""
+		print(f"- score={score:.4f} | {prefix}{snippet}")
 
 
 def main():
@@ -372,6 +425,19 @@ def main():
 	parser.add_argument("--insert-batch", type=int, default=256, help="Insert batch size")
 	parser.add_argument("--drop-before", action="store_true", help="Drop collection first (recreate with hash field)")
 	parser.add_argument("--dedup", action="store_true", help="Skip inserting chunks that already exist (by text hash)")
+	parser.add_argument("--top-k", type=int, default=5, help="Number of results to return (default: 5)")
+	parser.add_argument(
+		"--prefer-substr",
+		action="append",
+		default=[],
+		help="Boost results whose text contains this substring (case-insensitive). Can be repeated.",
+	)
+	parser.add_argument(
+		"--prefer-section",
+		action="append",
+		default=[],
+		help="Boost results whose section contains this substring (case-insensitive). Can be repeated.",
+	)
 	args = parser.parse_args()
 
 	md_file = Path(args.file) if args.file else None
@@ -389,6 +455,9 @@ def main():
 		insert_batch=args.insert_batch,
 		drop_before=args.drop_before,
 		dedup=args.dedup,
+		top_k=args.top_k,
+		prefer_substr=args.prefer_substr,
+		prefer_section=args.prefer_section,
 	)
 
 

@@ -43,7 +43,7 @@ uv run python src/03_indexing.py --dry-run --show 3
 ## 6) Index into Milvus with Gemini embeddings
 ```bash
 uv run python src/03_indexing.py \
-	--input output/md_with_images/jama_summers_2025-with-image-refs-merged.md \
+	--input output/md_with_images/jama_summers_2025-with-image-refs-merged-no-ref.md \
 	--collection doc_md_multimodal \
 	--embed-model gemini-embedding-001 \
 	--embed-batch 64 \
@@ -87,4 +87,55 @@ uv run python RAG_milvus_demo/demo.py \
 - Human-readable, easy to audit
 - Preserves image links for multimodal pipelines
 - YAML front matter provides clean provenance (DOI, journal, title, etc.)
+
+## Indexing from cleaned JSON (alternative path)
+
+If you prefer to index a pre-cleaned JSON (with boilerplate removed), use the cleaner agent and the JSON indexer. This often improves retrieval quality by excluding author info, funding/roles, and article boilerplate.
+
+1) Generate the cleaned JSON from the merged-no-ref Markdown
+
+```bash
+uv run python agents/md_clean_agent.py \
+	output/md_with_images/jama_summers_2025-with-image-refs-merged-no-ref.md
+```
+
+This writes: `output/md_with_images/jama_summers_2025-with-image-refs-merged-no-ref-clean.json`.
+
+2) Dry-run parse and preview chunks (no embeddings/inserts)
+
+```bash
+uv run python src/03_1_indexing_json.py \
+	--input output/md_with_images/jama_summers_2025-with-image-refs-merged-no-ref-clean.json \
+	--collection doc_md_multimodal_json \
+	--dry-run \
+	--show 5
+```
+
+3) Index into Milvus with Gemini embeddings
+
+```bash
+uv run python src/03_1_indexing_json.py \
+	--input output/md_with_images/jama_summers_2025-with-image-refs-merged-no-ref-clean.json \
+	--collection doc_md_multimodal_json \
+	--embed-batch 64 \
+	--insert-batch 256 \
+	--drop-before \
+	--show 3
+```
+
+4) Query the JSON-backed collection (with section boosting)
+
+```bash
+uv run python RAG_milvus_demo/demo.py \
+	--collection doc_md_multimodal_json \
+	--query-only \
+	--query "Conclusions and Relevance: what are the main conclusions?" \
+	--top-k 20 \
+	--prefer-section "Conclusions and Relevance" \
+	--prefer-substr "Conclusions"
+```
+
+Notes:
+- DOI provenance is preserved from the JSON metadata and stored in Milvus.
+- Use `--collection doc_md_multimodal` with `--drop-before` if you want to replace the original collection with the cleaned JSON pipeline.
 
