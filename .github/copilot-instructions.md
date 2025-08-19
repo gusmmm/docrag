@@ -3,6 +3,7 @@
 - ALWAYS check the memory/ folder for the latest information about the project, what has been implemented, and any other relevant details.
 
 # Memory
+- ALWAYS check the memory/ folder for the latest information about the project, what has been implemented, and any other relevant details.
 - After significant changes update the memory at the memory/ folder
 
 # General Guidelines
