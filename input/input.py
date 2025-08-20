@@ -27,109 +27,52 @@ from typing import Any, Dict, List, Optional
 try:
 	# When run as a module: python -m input.input
 	from input.check_pdf import check_pdf, normalize_doi  # type: ignore
+	from input.utils import (
+		load_db,
+		save_db,
+		find_by_key,
+		find_by_doi,
+		find_by_title,
+		safe_filename_from_key,
+		unique_path,
+	)
 except Exception:  # When run as a script: python input/input.py
 	from check_pdf import check_pdf, normalize_doi  # type: ignore
+	from utils import (
+		load_db,
+		save_db,
+		find_by_key,
+		find_by_doi,
+		find_by_title,
+		safe_filename_from_key,
+		unique_path,
+	)
 
 
 ROOT = Path(__file__).resolve().parent
-INPUT_DIR = ROOT
+INPUT_DIR = ROOT / "pdf"
 JSON_PATH = ROOT / "input_pdf.json"
 
 
-def normalize_title(s: str) -> str:
-	# Remove extension-like tails and normalize separators/whitespace
-	name = s
-	if "." in name:
-		name = name.rsplit(".", 1)[0]
-	name = name.replace("_", " ").replace("-", " ")
-	name = " ".join(name.split()).strip().casefold()
-	return name
-
-
-def safe_filename_from_key(key: str) -> str:
-	# Citation keys are expected to be [a-z0-9], but sanitize anyway
-	s = "".join(ch for ch in key.lower() if ch.isalnum())
-	if not s:
-		s = "key"
-	if len(s) > 80:
-		s = s[:80]
-	return s
-
-
-def unique_path(base_dir: Path, stem: str, ext: str = ".pdf") -> Path:
-	cand = base_dir / f"{stem}{ext}"
-	if not cand.exists():
-		return cand
-	i = 1
-	while True:
-		cand = base_dir / f"{stem} ({i}){ext}"
-		if not cand.exists():
-			return cand
-		i += 1
-
-
-def load_db(path: Path) -> List[Dict[str, Any]]:
-	if not path.exists() or path.stat().st_size == 0:
-		return []
-	try:
-		data = json.loads(path.read_text(encoding="utf-8"))
-		if isinstance(data, list):
-			return data
-		# If object with items array, allow it; else fallback
-		if isinstance(data, dict) and isinstance(data.get("items"), list):
-			return data["items"]
-	except Exception:
-		pass
-	return []
-
-
-def save_db(path: Path, items: List[Dict[str, Any]]) -> None:
-	path.write_text(json.dumps(items, indent=2, ensure_ascii=False), encoding="utf-8")
-
-
-def find_by_title(items: List[Dict[str, Any]], title: str) -> Optional[Dict[str, Any]]:
-	key = normalize_title(title)
-	for obj in items:
-		t = str(obj.get("title", ""))
-		if normalize_title(t) == key:
-			return obj
-	return None
-
-
-def find_by_doi(items: List[Dict[str, Any]], doi: Optional[str]) -> Optional[Dict[str, Any]]:
-	if not doi:
-		return None
-	try:
-		key = normalize_doi(str(doi))
-	except Exception:
-		key = str(doi).strip()
-	for obj in items:
-		v = obj.get("doi")
-		if not v:
-			continue
-		try:
-			vd = normalize_doi(str(v))
-		except Exception:
-			vd = str(v).strip()
-		if vd.casefold() == key.casefold():
-			return obj
-	return None
-
-
-def find_by_key(items: List[Dict[str, Any]], key: Optional[str]) -> Optional[Dict[str, Any]]:
-	if not key:
-		return None
-	k = str(key).strip().lower()
-	for obj in items:
-		v = str(obj.get("citation_key", "")).strip().lower()
-		if v and v == k:
-			return obj
-	return None
+def _ensure_pdf_dir() -> None:
+	INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def main() -> None:
+	_ensure_pdf_dir()
 	items = load_db(JSON_PATH)
 	changed = False
+
+	# Also move stray PDFs in input/ into input/pdf
+	stray = [p for p in ROOT.glob("*.pdf")]
+	for p in stray:
+		target = (INPUT_DIR / p.name)
+		if not target.exists():
+			try:
+				p.rename(target)
+				print(f"Moved stray PDF to pdf/: {p.name}")
+			except Exception:
+				pass
 
 	pdfs = sorted(p for p in INPUT_DIR.glob("*.pdf"))
 	if not pdfs:
@@ -189,7 +132,7 @@ def main() -> None:
 			continue
 
 		# Then dedup by DOI (authoritative)
-		existing_d = find_by_doi(items, res.doi)
+		existing_d = find_by_doi(items, res.doi, normalizer=normalize_doi)
 		if existing_d:
 			# If DOI exists but citation_key missing or different, attach/normalize
 			if not existing_d.get("citation_key"):
