@@ -9,3 +9,46 @@ wheels/
 # Virtual environments
 .venv
 .env
+.env.*
+.python-version
+
+# OS/Editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Project outputs
+output/
+
+# Input PDFs (keep JSON registry, ignore actual PDFs)
+input/pdf/
+!input/input_pdf.json
+
+# Local caches / logs
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# Docker
+**/.docker/*
+*.pid
+
+# API keys and secrets (examples allowed)
+*.key
+*.pem
+*.p12
+secrets.*
+api_keys.*
+credentials.*
+
+# Node (if any tooling)
+node_modules/
+pnpm-lock.yaml
+package-lock.json
