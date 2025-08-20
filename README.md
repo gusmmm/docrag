@@ -66,6 +66,16 @@ uv run python RAG_milvus_demo/demo.py --collection paper_chunks --query-only --q
 # Attu UI: http://localhost:8000 (connect to localhost:19530)
 ```
 
+## Single-command pipeline (end-to-end)
+Prereqs: Drop your PDF into `input/pdf/`, start Milvus, and export `GEMINI_API_KEY` (or `GOOGLE_API_KEY`). Then run:
+
+```bash
+uv run python main.py full --show 3
+```
+
+Notes:
+- Any flags after `full` are forwarded to the final indexing step (e.g., `--collection paper_chunks`, `--meta-collection papers_meta`, `--db-name journal_papers`, `--dry-run`).
+
 Notes:
 - Use `uv run python src/14_index.py --dry-run --show 3` to preview chunking without embeddings/inserts.
 - To index a single paper, pass `--file output/papers/<key>/md_with_images/<key>-RAG.md` to step 8.

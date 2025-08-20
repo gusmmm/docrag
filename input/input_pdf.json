@@ -471,5 +471,44 @@
       "issue": "3",
       "URL": "https://doi.org/10.1097/ccm.0000000000006574"
     }
+  },
+  {
+    "citation_key": "arabi2025venousthromboprophylaxis",
+    "title": "Venous thromboprophylaxis in the ICU: navigating evidence, risk, and practice gaps",
+    "doi": "10.1007/s00134-025-08009-6",
+    "csl": {
+      "DOI": "10.1007/s00134-025-08009-6",
+      "type": "journal-article",
+      "title": "Venous thromboprophylaxis in the ICU: navigating evidence, risk, and practice gaps",
+      "container-title": "Intensive Care Medicine",
+      "publisher": "Springer Science and Business Media LLC",
+      "issued": {
+        "date-parts": [
+          [
+            2025,
+            7,
+            16
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Yaseen M.",
+          "family": "Arabi"
+        },
+        {
+          "given": "Sangeeta",
+          "family": "Mehta"
+        }
+      ],
+      "ISSN": [
+        "0342-4642",
+        "1432-1238"
+      ],
+      "page": "1508-1510",
+      "volume": "51",
+      "issue": "8",
+      "URL": "https://doi.org/10.1007/s00134-025-08009-6"
+    }
   }
 ]
