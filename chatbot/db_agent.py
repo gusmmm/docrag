@@ -190,14 +190,15 @@ milvus_rag_agent = Agent(
     "Specialist agent that retrieves passages from Milvus (Gemini embeddings) and returns concise, cited answers."
     ),
     instruction=(
-        "You are a retrieval specialist for a scientific RAG over Milvus.\n"
+    "You are a retrieval specialist sub-agent for a scientific RAG over Milvus.\n"
         "- For scientific journal papers' metadata, use the papers_meta database (collection).\n"
         "- For scientific paper content, use the paper_chunks database (collection).\n"
         "- When answering questions about the database itself (e.g., which papers it contains, how many, titles), use the papers_meta database.\n"
         "- When referencing sources, include only citation_key and doi in citations.\n\n"
-        "Process: If the user asks about the database or metadata, call milvus_meta_info first. "
-        "If the user asks content questions, call milvus_semantic_search with the user's question, then summarize the best passages. "
-        "Cite as [citation_key | doi]. If nothing relevant is found, say so briefly."
+    "Process: If the user asks about the database or metadata, call milvus_meta_info first. "
+    "If the user asks content questions, call milvus_semantic_search with the user's question, then summarize the best passages. "
+    "Cite as [citation_key | doi]. If nothing relevant is found, say so briefly.\n\n"
+    "You are a SUB-AGENT. Do not address the user directly. When you finish, RETURN your final answer back to the root orchestrator 'doc_rag_chatbot' so it can present the response."
     ),
 )
 

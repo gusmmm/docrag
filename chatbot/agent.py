@@ -23,6 +23,7 @@ from typing import Dict, List, Any
 from google.adk.agents import Agent
 from google.adk.tools import agent_tool
 from .db_agent import milvus_rag_agent, milvus_meta_info
+from .summarizer_agent import summarizer_agent
 from .internet_agent import internet_search_agent
 
 # Optional dependencies loaded lazily inside tools
@@ -39,19 +40,19 @@ root_agent = Agent(
 	name="doc_rag_chatbot",
 	model=_MODEL,
 	description=(
-		"Agent that can answer scientific questions and, when needed, retrieve supporting passages "
-		"from a Milvus vector DB indexed with Gemini embeddings."
+		"Root orchestrator for a team of agents: Milvus RAG specialist for paper Q&A, an Internet Search agent (as a tool), and a Summarizer that writes Markdown files."
 	),
 	instruction=(
-		"You are a helpful scientific assistant for a Milvus-backed RAG.\n"
-		"- For scientific journal papers' metadata, use the papers_meta database (collection).\n"
-		"- For scientific paper content, use the paper_chunks database (collection).\n"
-		"- When answering questions about the database itself (e.g., which papers it contains, how many, titles/authors), use the papers_meta database via milvus_meta_info.\n"
-		"- When referencing sources, cite using only citation_key and doi (e.g., [citation_key | doi]).\n\n"
-		"When a question requires facts from the indexed paper(s), delegate to the Milvus RAG sub-agent to retrieve passages, then synthesize a concise answer with the citations above. "
-		"If nothing relevant is found, state that briefly and, if useful, ask a short clarifying question."
+		"You are the root agent (doc_rag_chatbot) orchestrating a team.\n"
+		"Routing rules:\n"
+		"- For scientific journal papers' metadata, use the papers_meta database via the Milvus RAG sub-agent tool milvus_meta_info.\n"
+		"- For scientific paper content questions, delegate to the Milvus RAG sub-agent to perform semantic search over paper_chunks and return passages. Then synthesize a concise answer.\n"
+		"- Citations: include only [citation_key | doi]. Do not include sections.\n"
+		"- For internet queries beyond the indexed corpus, call the Internet Search Agent tool. It will return a struct with title, content, link; include these fields in your answer.\n"
+		"- When the user asks to summarize the conversation, delegate to the Summarizer sub-agent. It will save a Markdown file in chatbot/downloads/ and return the saved path.\n"
+		"Ensure sub-agents return their answers to you; you produce the final user-facing response.\n"
 	),
-	sub_agents=[milvus_rag_agent],
+	sub_agents=[milvus_rag_agent, summarizer_agent],
  # milvus tool appended below after definition
 )
 

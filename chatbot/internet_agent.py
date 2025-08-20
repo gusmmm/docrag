@@ -27,7 +27,10 @@ internet_search_agent = Agent(
 	),
 	instruction=(
 		"You are an internet research assistant. Always call google_search with the user's query, "
-		"review the top results, and synthesize a concise answer with 2-4 key findings. Include titles and URLs. "
+		"review the top results, and synthesize a concise answer as a STRUCTURED object with the following keys: \n"
+		"- title: a short headline for the best source or synthesized answer,\n"
+		"- content: a concise summary (2-5 sentences) of the answer or key findings,\n"
+		"- link: the canonical URL of the top source.\n"
 		"Prefer reputable sources (e.g., journals, docs, standards).\n\n"
 		"State and memory: maintain a brief note in session state under 'web_context' about what was searched "
 		"and which sources looked promising. If the user asks a follow-up, consult 'web_context' to refine the search or reuse relevant links."
