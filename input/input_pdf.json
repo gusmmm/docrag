@@ -344,5 +344,132 @@
       "issue": "4",
       "URL": "https://doi.org/10.1001/jama.2025.9110"
     }
+  },
+  {
+    "citation_key": "lewis2025focusedupdateclinicalpra",
+    "title": "A Focused Update to the Clinical Practice Guidelines for the Prevention and Management of Pain, Anxiety, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU",
+    "doi": "10.1097/CCM.0000000000006574",
+    "csl": {
+      "DOI": "10.1097/ccm.0000000000006574",
+      "type": "journal-article",
+      "title": "A Focused Update to the Clinical Practice Guidelines for the Prevention and Management of Pain, Anxiety, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU",
+      "container-title": "Critical Care Medicine",
+      "publisher": "Ovid Technologies (Wolters Kluwer Health)",
+      "issued": {
+        "date-parts": [
+          [
+            2025,
+            2,
+            21
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Kimberley",
+          "family": "Lewis"
+        },
+        {
+          "given": "Michele C.",
+          "family": "Balas"
+        },
+        {
+          "given": "Joanna L.",
+          "family": "Stollings"
+        },
+        {
+          "given": "Molly",
+          "family": "McNett"
+        },
+        {
+          "given": "Timothy D.",
+          "family": "Girard"
+        },
+        {
+          "given": "Gerald",
+          "family": "Chanques"
+        },
+        {
+          "given": "Michelle E.",
+          "family": "Kho"
+        },
+        {
+          "given": "Pratik P.",
+          "family": "Pandharipande"
+        },
+        {
+          "given": "Gerald L.",
+          "family": "Weinhouse"
+        },
+        {
+          "given": "Nathan E.",
+          "family": "Brummel"
+        },
+        {
+          "given": "Linda L.",
+          "family": "Chlan"
+        },
+        {
+          "given": "Makayla",
+          "family": "Cordoza"
+        },
+        {
+          "given": "Jeremiah J.",
+          "family": "Duby"
+        },
+        {
+          "given": "Céline",
+          "family": "Gélinas"
+        },
+        {
+          "given": "Erin L.",
+          "family": "Hall-Melnychuk"
+        },
+        {
+          "given": "Anna",
+          "family": "Krupp"
+        },
+        {
+          "given": "Patricia R.",
+          "family": "Louzon"
+        },
+        {
+          "given": "Judith A.",
+          "family": "Tate"
+        },
+        {
+          "given": "Bethany",
+          "family": "Young"
+        },
+        {
+          "given": "Ron",
+          "family": "Jennings"
+        },
+        {
+          "given": "Anitra",
+          "family": "Hines"
+        },
+        {
+          "given": "Chris",
+          "family": "Ross"
+        },
+        {
+          "given": "Kallirroi Laiya",
+          "family": "Carayannopoulos"
+        },
+        {
+          "given": "J. Matthew",
+          "family": "Aldrich"
+        }
+      ],
+      "ISSN": [
+        "0090-3493",
+        "1530-0293"
+      ],
+      "page": "e711-e727",
+      "volume": "53",
+      "issue": "3",
+      "URL": "https://doi.org/10.1097/ccm.0000000000006574"
+    }
   }
 ]
