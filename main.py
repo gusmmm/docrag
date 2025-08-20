@@ -7,6 +7,8 @@ Subcommands:
 - ingest-pdfs       Run the input orchestrator to extract metadata, CSL, and citation keys.
 - prepare-outputs   Create per-PDF output folders under output/papers/<citation_key>/.
 - md-with-images    Generate Markdown with images per paper under output/papers/<key>/md_with_images/.
+- prepare-rag       Extract references, strip them, and clean MD to produce -RAG.md per paper.
+- add-metadata      Add YAML metadata from input/input_pdf.json to each -RAG.md.
 - all               Run ingest-pdfs then prepare-outputs.
 
 Examples:
@@ -57,7 +59,7 @@ def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="docrag", description="Project orchestrator")
     ap.add_argument(
     "command",
-    choices=["ingest-pdfs", "prepare-outputs", "md-with-images", "all"],
+    choices=["ingest-pdfs", "prepare-outputs", "md-with-images", "prepare-rag", "add-metadata", "all"],
         help="Which step to run",
     )
     args = ap.parse_args(argv)
@@ -73,6 +75,24 @@ def main(argv: list[str] | None = None) -> None:
         spec = importlib.util.spec_from_file_location("mdimgs_mod", path)
         if not spec or not spec.loader:
             raise RuntimeError("Could not load 11_create_md_with_images.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        mod.main()  # type: ignore[attr-defined]
+    elif args.command == "prepare-rag":
+        import importlib.util
+        path = ROOT / "src" / "12_remove_refs_clean.py"
+        spec = importlib.util.spec_from_file_location("ragprep_mod", path)
+        if not spec or not spec.loader:
+            raise RuntimeError("Could not load 12_remove_refs_clean.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        mod.main()  # type: ignore[attr-defined]
+    elif args.command == "add-metadata":
+        import importlib.util
+        path = ROOT / "src" / "13_add_metada.py"
+        spec = importlib.util.spec_from_file_location("addmeta_mod", path)
+        if not spec or not spec.loader:
+            raise RuntimeError("Could not load 13_add_metada.py")
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)  # type: ignore[attr-defined]
         mod.main()  # type: ignore[attr-defined]

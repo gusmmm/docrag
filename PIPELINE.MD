@@ -15,3 +15,23 @@ Notes:
 - Set `CROSSREF_UA` for polite Crossref requests.
 - OCR is optional and requires `pytesseract` + `Pillow` (use the `--ocr` flag with `check_pdf.py` when needed).
 
+
+# step 2 - pdf -> markdown with images
+- Run `uv run python main.py md-with-images` to convert each `input/pdf/<citation_key>.pdf` into a Markdown with referenced images under `output/papers/<key>/md_with_images/`.
+- Images are stored alongside the Markdown for each paper.
+- OCR defaults: engine auto-selects tesseract-cli if available; language defaults to `eng` (override with `DOCRAG_OCR_LANGS`).
+
+
+# step 3 - prepare Markdown for RAG
+- Run `uv run python main.py prepare-rag` to:
+	- Extract references to `references.json` using `agents/references_agent.py`.
+	- Strip the references section from the Markdown (based on `src/02_1_strip_refs.py`).
+	- Clean boilerplate (authors, affiliations, disclosures, etc.) using `agents/md_clean_agent.py`.
+	- Save the result as `<original-stem>-RAG.md` in the same folder.
+- Idempotent: if a `-RAG.md` exists for a given input Markdown, the step is skipped for that file.
+
+
+# step 4 - add metadata to RAG Markdown
+- Run `uv run python main.py add-metadata` to prepend a YAML front matter to each `*-RAG.md` using entries in `input/input_pdf.json`.
+- Fields include: title, authors, doi, citation_key, journal, volume, issue, pages, issued (ISO), url, and source provenance.
+
