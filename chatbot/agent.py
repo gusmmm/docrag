@@ -25,6 +25,7 @@ from google.adk.tools import agent_tool
 from .db_agent import milvus_rag_agent, milvus_meta_info
 from .summarizer_agent import summarizer_agent
 from .internet_agent import internet_search_agent
+from .file_agent import file_agent
 
 # Optional dependencies loaded lazily inside tools
 # - google.genai for embeddings
@@ -34,6 +35,7 @@ from .internet_agent import internet_search_agent
 
 # Root agent discovered by ADK
 # Default to a more robust model to mitigate occasional 500 INTERNAL errors; override via ADK_MODEL.
+# Prefer a robust default; can be overridden via ADK_MODEL
 _MODEL = os.getenv("ADK_MODEL", "gemini-2.5-flash")
 
 root_agent = Agent(
@@ -50,9 +52,10 @@ root_agent = Agent(
 		"- Citations: include only [citation_key | doi]. Do not include sections.\n"
 		"- For internet queries beyond the indexed corpus, call the Internet Search Agent tool. It will return a struct with title, content, link; include these fields in your answer.\n"
 		"- When the user asks to summarize the conversation, delegate to the Summarizer sub-agent. It will save a Markdown file in chatbot/downloads/ and return the saved path.\n"
+		"- When the user asks to see the original PDF or original text, delegate to the File Agent. It will search under input/ (including input/pdf/) and return either the text content or the absolute PDF path for display.\n"
 		"Ensure sub-agents return their answers to you; you produce the final user-facing response.\n"
 	),
-	sub_agents=[milvus_rag_agent, summarizer_agent],
+		sub_agents=[milvus_rag_agent, summarizer_agent, file_agent],
  # milvus tool appended below after definition
 )
 

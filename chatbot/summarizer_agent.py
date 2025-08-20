@@ -72,7 +72,7 @@ def save_markdown_to_downloads(title: str, content_markdown: str) -> Dict[str, s
         return {"status": "error", "error_message": str(e), "path": "", "filename": ""}
 
 
-_MODEL = os.getenv("ADK_MODEL", "gemini-2.5-flash-lite")
+_MODEL = os.getenv("ADK_MODEL", "gemini-2.5-flash")
 
 summarizer_agent = Agent(
     name="conversation_summarizer_agent",
