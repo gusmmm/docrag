@@ -13,4 +13,5 @@ dependencies = [
     "google>=3.0.0",
     "adk>=0.0.5",
     "google-adk>=1.11.0",
+    "pymupdf>=1.26.3",
 ]

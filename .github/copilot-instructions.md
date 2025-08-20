@@ -25,3 +25,7 @@
 # chatbot
 - the chatbot will be created using ADK google agents
 - check the latest documentation for using ADK google agents at https://google.github.io/adk-docs/
+
+# workflow pipeline
+- when implementing the full pipeline, follow the steps in the PIPELINE.md file
+- check the codebase for the already implemented tools and agents
