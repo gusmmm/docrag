@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 from typing import Dict, List, Any
 
 from google.adk.agents import Agent
-from .db_agent import milvus_rag_agent
+from .db_agent import milvus_rag_agent, milvus_meta_info
 
 # Optional dependencies loaded lazily inside tools
 # - google.genai for embeddings
@@ -41,10 +41,13 @@ root_agent = Agent(
 		"from a Milvus vector DB indexed with Gemini embeddings."
 	),
 	instruction=(
-		"You are a helpful scientific assistant. When a question requires facts from the indexed paper(s), "
-		"call the milvus_semantic_search tool to retrieve relevant passages. Synthesize a concise answer "
-		"and include inline citations with DOI and section (e.g., [doi:10.xxxx | Section]). If no relevant "
-		"results are found, state that clearly and ask a brief clarifying question."
+		"You are a helpful scientific assistant for a Milvus-backed RAG.\n"
+		"- For scientific journal papers' metadata, use the papers_meta database (collection).\n"
+		"- For scientific paper content, use the paper_chunks database (collection).\n"
+		"- When answering questions about the database itself (e.g., which papers it contains, how many, titles/authors), use the papers_meta database via milvus_meta_info.\n"
+		"- When referencing sources, cite using only citation_key and doi (e.g., [citation_key | doi]).\n\n"
+		"When a question requires facts from the indexed paper(s), call milvus_semantic_search to retrieve passages, then synthesize a concise answer with the citations above. "
+		"If nothing relevant is found, state that briefly and, if useful, ask a short clarifying question."
 	),
 	sub_agents=[milvus_rag_agent],
  # milvus tool appended below after definition
@@ -97,7 +100,7 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 
 	Returns:
 		dict with 'status' and either 'results' (list) or 'error_message'. Each result has
-		score, text, section, doi, source, chunk_index.
+		score, text, section, doi, citation_key, chunk_index.
 	"""
 	try:
 		from pymilvus import connections, utility, Collection  # type: ignore
@@ -111,7 +114,7 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 
 	host = os.getenv("MILVUS_HOST", "127.0.0.1")
 	port = os.getenv("MILVUS_PORT", "19530")
-	coll_name = os.getenv("ADK_COLLECTION") or "doc_md_multimodal"
+	coll_name = os.getenv("ADK_COLLECTION") or "paper_chunks"
 	# Top-k is configurable via env; keep simple signature for ADK auto-calling
 	top_k_env = os.getenv("ADK_TOP_K", "5")
 	try:
@@ -124,9 +127,9 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 		if not utility.has_collection(coll_name):
 			return {"status": "error", "error_message": f"Collection '{coll_name}' not found"}
 		coll = Collection(coll_name)
-		# Determine available scalar fields dynamically
+		# Determine available scalar fields dynamically (aligned with our schema)
 		schema_fields = {f.name for f in coll.schema.fields}
-		output_fields = [f for f in ["text", "section", "doi", "source", "chunk_index"] if f in schema_fields]
+		output_fields = [f for f in ["text", "section", "doi", "citation_key", "chunk_index"] if f in schema_fields]
 		coll.load()
 		params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
 		res = coll.search(data=[qvec], anns_field="vector", param=params, limit=int(_top_k), output_fields=output_fields)
@@ -140,8 +143,8 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 				item["section"] = hit.entity.get("section")
 			if "doi" in output_fields:
 				item["doi"] = hit.entity.get("doi")
-			if "source" in output_fields:
-				item["source"] = hit.entity.get("source")
+			if "citation_key" in output_fields:
+				item["citation_key"] = hit.entity.get("citation_key")
 			if "chunk_index" in output_fields:
 				item["chunk_index"] = hit.entity.get("chunk_index")
 			out.append(item)
@@ -150,6 +153,7 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 		return {"status": "error", "error_message": f"Milvus search failed: {e}"}
 
 
-# Register tool with the agent
+# Register tools with the agent
 root_agent.tools.append(milvus_semantic_search)
+root_agent.tools.append(milvus_meta_info)
 
