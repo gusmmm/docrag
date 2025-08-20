@@ -6,11 +6,13 @@ Project orchestrator CLI
 Subcommands:
 - ingest-pdfs       Run the input orchestrator to extract metadata, CSL, and citation keys.
 - prepare-outputs   Create per-PDF output folders under output/papers/<citation_key>/.
+- md-with-images    Generate Markdown with images per paper under output/papers/<key>/md_with_images/.
 - all               Run ingest-pdfs then prepare-outputs.
 
 Examples:
 - uv run python main.py ingest-pdfs
 - uv run python main.py prepare-outputs
+- uv run python main.py md-with-images
 - uv run python main.py all
 """
 
@@ -54,8 +56,8 @@ def cmd_prepare_outputs() -> None:
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="docrag", description="Project orchestrator")
     ap.add_argument(
-        "command",
-        choices=["ingest-pdfs", "prepare-outputs", "all"],
+    "command",
+    choices=["ingest-pdfs", "prepare-outputs", "md-with-images", "all"],
         help="Which step to run",
     )
     args = ap.parse_args(argv)
@@ -64,9 +66,28 @@ def main(argv: list[str] | None = None) -> None:
         cmd_ingest_pdfs()
     elif args.command == "prepare-outputs":
         cmd_prepare_outputs()
+    elif args.command == "md-with-images":
+        # Lazy import and run
+        import importlib.util
+        path = ROOT / "src" / "11_create_md_with_images.py"
+        spec = importlib.util.spec_from_file_location("mdimgs_mod", path)
+        if not spec or not spec.loader:
+            raise RuntimeError("Could not load 11_create_md_with_images.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        mod.main()  # type: ignore[attr-defined]
     elif args.command == "all":
         cmd_ingest_pdfs()
         cmd_prepare_outputs()
+        # Run md-with-images last
+        import importlib.util
+        path = ROOT / "src" / "11_create_md_with_images.py"
+        spec = importlib.util.spec_from_file_location("mdimgs_mod", path)
+        if not spec or not spec.loader:
+            raise RuntimeError("Could not load 11_create_md_with_images.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        mod.main()  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":

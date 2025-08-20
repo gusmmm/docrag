@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-pdf_dir = Path("input/")
+pdf_dir = Path("input/pdf")
 out_dir = Path("output/md_with_images")
 
 
@@ -43,12 +43,15 @@ def parse_args() -> argparse.Namespace:
 
 def convert_with_image_annotation(input_file: Path, *, ocr_engine: str | None = None, ocr_langs_cli: list[str] | None = None, captions: bool | None = None):
 	api_key = os.getenv("OPENROUTER_API_KEY")
-	# OCR languages: CLI overrides ENV, else default to ["auto"]
+	# OCR languages: CLI overrides ENV, else default to ["eng"] for quality/stability
 	if ocr_langs_cli is not None:
 		ocr_langs = ocr_langs_cli
 	else:
-		ocr_langs_env = os.getenv("DOCRAG_OCR_LANGS", "auto").strip()
-		ocr_langs = [s.strip() for s in ocr_langs_env.split(",") if s.strip()] if ocr_langs_env else ["auto"]
+		ocr_langs_env = os.getenv("DOCRAG_OCR_LANGS", "eng").strip()
+		ocr_langs = [s.strip() for s in ocr_langs_env.split(",") if s.strip()] if ocr_langs_env else ["eng"]
+	# Avoid tesseract 'Latin' auto-detect warnings; fall back to English if 'auto' is present
+	if ocr_langs == ["auto"]:
+		ocr_langs = ["eng"]
 
 	# Determine OCR engine
 	chosen_engine = ocr_engine or "auto"
@@ -94,7 +97,7 @@ def convert_with_image_annotation(input_file: Path, *, ocr_engine: str | None = 
 		if not api_key:
 			print("OPENROUTER_API_KEY not found. Proceeding without picture descriptions.")
 
-	print(f"OCR engine: {chosen_engine}; languages: {','.join(ocr_langs)}; captions: {do_picture_description}")
+	print(f"[docling] OCR engine={chosen_engine} langs={','.join(ocr_langs)} captions={do_picture_description}")
 
 	pipeline_options = PdfPipelineOptions(
 		do_ocr=True,
@@ -103,7 +106,8 @@ def convert_with_image_annotation(input_file: Path, *, ocr_engine: str | None = 
 		picture_description_options=picture_desc_api_option,
 		enable_remote_services=enable_remote_services,
 		generate_picture_images=generate_picture_images,
-		images_scale=2,
+		# Increase image scale for higher quality figures/tables in Markdown
+		images_scale=3,
 	)
 	converter = DocumentConverter(
 		format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)},
@@ -140,20 +144,23 @@ def main():
 		captions=args.captions,
 	)
 
-	# Ensure output directory exists
-	out_dir.mkdir(parents=True, exist_ok=True)
-
-	# Save Markdown with externally referenced images (images written into out_dir)
+	# Ensure output directories exist
 	stem = Path(source).stem
+	out_dir.mkdir(parents=True, exist_ok=True)
+	images_dir = out_dir / f"{stem}_images"
+	images_dir.mkdir(parents=True, exist_ok=True)
+
+	# Save Markdown with externally referenced images into a dedicated folder
 	md_path = out_dir / f"{stem}-with-image-refs.md"
 	result.document.save_as_markdown(
 		md_path,
-		artifacts_dir=out_dir,
+		artifacts_dir=images_dir,
 		image_mode=ImageRefMode.REFERENCED,
 		include_annotations=True,
 	)
 
-	print(f"Saved markdown with image references to: {md_path}")
+	print(f"[docling] Wrote Markdown: {md_path}")
+	print(f"[docling] Images folder: {images_dir}")
 
 
 if __name__ == "__main__":
