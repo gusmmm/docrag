@@ -66,11 +66,11 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
     host = os.getenv("MILVUS_HOST", "127.0.0.1")
     port = os.getenv("MILVUS_PORT", "19530")
     coll_name = os.getenv("ADK_COLLECTION") or "paper_chunks"
-    top_k_env = os.getenv("ADK_TOP_K", "5")
+    top_k_env = os.getenv("ADK_TOP_K", "20")
     try:
         _top_k = max(1, int(top_k_env))
     except Exception:
-        _top_k = 5
+        _top_k = 20
 
     try:
         connections.connect(alias="default", host=host, port=port)

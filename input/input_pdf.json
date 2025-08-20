@@ -510,5 +510,463 @@
       "issue": "8",
       "URL": "https://doi.org/10.1007/s00134-025-08009-6"
     }
+  },
+  {
+    "citation_key": "gigengack2025renalfunctionaftersevere",
+    "title": "Renal function after severe burn trauma - effects of reducing resuscitation fluid volume and changing fluid tonicity",
+    "doi": "10.1016/j.burns.2025.107655",
+    "csl": {
+      "DOI": "10.1016/j.burns.2025.107655",
+      "type": "journal-article",
+      "title": "Renal function after severe burn trauma - effects of reducing resuscitation fluid volume and changing fluid tonicity",
+      "container-title": "Burns",
+      "publisher": "Elsevier BV",
+      "issued": {
+        "date-parts": [
+          [
+            2025,
+            11
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Rolf K.",
+          "family": "Gigengack"
+        },
+        {
+          "given": "Annemieke",
+          "family": "Dijkstra"
+        },
+        {
+          "given": "Berry I.",
+          "family": "Cleffken"
+        },
+        {
+          "given": "Stephan A.",
+          "family": "Loer"
+        },
+        {
+          "given": "J. Seppe H.A.",
+          "family": "Koopman"
+        },
+        {
+          "given": "Cornelis H.",
+          "family": "Van der Vlies"
+        }
+      ],
+      "ISSN": [
+        "0305-4179"
+      ],
+      "page": "107655",
+      "volume": "51",
+      "issue": "8",
+      "URL": "https://doi.org/10.1016/j.burns.2025.107655"
+    }
+  },
+  {
+    "citation_key": "mekontsodessap2025europeansocietyintensive",
+    "title": "European Society of Intensive Care Medicine (ESICM) 2025 clinical practice guideline on fluid therapy in adult critically ill patients: part 2—the volume of resuscitation fluids",
+    "doi": "10.1007/s00134-025-07840-1",
+    "csl": {
+      "DOI": "10.1007/s00134-025-07840-1",
+      "type": "journal-article",
+      "title": "European Society of Intensive Care Medicine (ESICM) 2025 clinical practice guideline on fluid therapy in adult critically ill patients: part 2—the volume of resuscitation fluids",
+      "container-title": "Intensive Care Medicine",
+      "publisher": "Springer Science and Business Media LLC",
+      "issued": {
+        "date-parts": [
+          [
+            2025,
+            3
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Armand",
+          "family": "Mekontso Dessap"
+        },
+        {
+          "given": "Fayez",
+          "family": "AlShamsi"
+        },
+        {
+          "given": "Alessandro",
+          "family": "Belletti"
+        },
+        {
+          "given": "Daniel",
+          "family": "De Backer"
+        },
+        {
+          "given": "Anthony",
+          "family": "Delaney"
+        },
+        {
+          "given": "Morten Hylander",
+          "family": "Møller"
+        },
+        {
+          "given": "Segolène",
+          "family": "Gendreau"
+        },
+        {
+          "given": "Glenn",
+          "family": "Hernandez"
+        },
+        {
+          "given": "Flavia R.",
+          "family": "Machado"
+        },
+        {
+          "given": "Mervyn",
+          "family": "Mer"
+        },
+        {
+          "given": "Manuel Ignacio",
+          "family": "Monge Garcia"
+        },
+        {
+          "given": "Sheila Nainan",
+          "family": "Myatra"
+        },
+        {
+          "given": "Zhiyong",
+          "family": "Peng"
+        },
+        {
+          "given": "Anders",
+          "family": "Perner"
+        },
+        {
+          "given": "Michael R.",
+          "family": "Pinsky"
+        },
+        {
+          "given": "Sameer",
+          "family": "Sharif"
+        },
+        {
+          "given": "Jean-Louis",
+          "family": "Teboul"
+        },
+        {
+          "given": "Antoine",
+          "family": "Vieillard-Baron"
+        },
+        {
+          "given": "Waleed",
+          "family": "Alhazzani"
+        },
+        {
+          "given": "Daniel",
+          "family": "De Backer"
+        },
+        {
+          "given": "Morten Hylander",
+          "family": "Møller"
+        },
+        {
+          "given": "Yaseen M.",
+          "family": "Arabi"
+        },
+        {
+          "given": "Fayez",
+          "family": "Alshamsi"
+        },
+        {
+          "given": "Emilie",
+          "family": "Belley-Cote"
+        },
+        {
+          "given": "Andrea",
+          "family": "Carsetti"
+        },
+        {
+          "given": "Alessandro",
+          "family": "Protti"
+        },
+        {
+          "given": "Katia",
+          "family": "Donadello"
+        },
+        {
+          "given": "Nicole",
+          "family": "Juffermans"
+        },
+        {
+          "given": "Naomi",
+          "family": "Hammond"
+        },
+        {
+          "given": "Jon Henrik",
+          "family": "Laake"
+        },
+        {
+          "given": "Dawei",
+          "family": "Liu"
+        },
+        {
+          "given": "Kathryn",
+          "family": "Maitland"
+        },
+        {
+          "given": "Antonio",
+          "family": "Messina"
+        },
+        {
+          "given": "Rob",
+          "family": "Mac Sweeney"
+        },
+        {
+          "given": "Jean-Louis",
+          "family": "Vincent"
+        },
+        {
+          "given": "Fernando",
+          "family": "Zampieri"
+        },
+        {
+          "given": "Daniele",
+          "family": "Poole"
+        },
+        {
+          "given": "Armand",
+          "family": "Mekontso-Dessap"
+        },
+        {
+          "given": "Waleed",
+          "family": "Alhazzani"
+        },
+        {
+          "given": "Fayez",
+          "family": "Alshamsi"
+        },
+        {
+          "given": "Alessandro",
+          "family": "Belletti"
+        },
+        {
+          "given": "Anthony",
+          "family": "Delaney"
+        },
+        {
+          "given": "Glen",
+          "family": "Hernandez"
+        },
+        {
+          "given": "Flavia R.",
+          "family": "Machado"
+        },
+        {
+          "given": "Manuel Ignacio Monge",
+          "family": "García"
+        },
+        {
+          "given": "Mervin",
+          "family": "Mer"
+        },
+        {
+          "given": "Sheila Nainan",
+          "family": "Myatra"
+        },
+        {
+          "given": "Michael R.",
+          "family": "Pinsky"
+        },
+        {
+          "given": "Anders",
+          "family": "Perner"
+        },
+        {
+          "given": "Zhiyong",
+          "family": "Peng"
+        },
+        {
+          "given": "Sameer",
+          "family": "Sharif"
+        },
+        {
+          "given": "Jean-Louis",
+          "family": "Teboul"
+        },
+        {
+          "given": "Antoine",
+          "family": "Vieillard-Baron"
+        },
+        {
+          "given": "Ségolène",
+          "family": "Gendreau"
+        },
+        {
+          "given": "Marlies",
+          "family": "Osterman"
+        },
+        {
+          "given": "Antonio Artigas",
+          "family": "Raventós"
+        },
+        {
+          "given": "Ichai",
+          "family": "Carole"
+        },
+        {
+          "given": "Maurizio",
+          "family": "Cecconi"
+        },
+        {
+          "given": "Christina",
+          "family": "Jones"
+        },
+        {
+          "given": "Xavier",
+          "family": "Monnet"
+        },
+        {
+          "given": "Manu",
+          "family": "Malbrain"
+        },
+        {
+          "given": "Marek",
+          "family": "Nalos"
+        },
+        {
+          "given": "Zhiyong",
+          "family": "Peng"
+        },
+        {
+          "given": "Carmen",
+          "family": "Pfortmueller"
+        },
+        {
+          "given": "John",
+          "family": "Prowle"
+        },
+        {
+          "given": "Otavio",
+          "family": "Ranzani"
+        },
+        {
+          "given": "Manu Shankar-Hari Adrian",
+          "family": "Wong"
+        },
+        {
+          "given": "Carl Thomas",
+          "family": "Anthon"
+        },
+        {
+          "given": "Anders",
+          "family": "Granholm"
+        }
+      ],
+      "ISSN": [
+        "0342-4642",
+        "1432-1238"
+      ],
+      "page": "461-477",
+      "volume": "51",
+      "issue": "3",
+      "URL": "https://doi.org/10.1007/s00134-025-07840-1"
+    }
+  },
+  {
+    "citation_key": "arabi2024europeansocietyintensive",
+    "title": "European Society of Intensive Care Medicine clinical practice guideline on fluid therapy in adult critically ill patients. Part 1: the choice of resuscitation fluids",
+    "doi": "10.1007/s00134-024-07369-9",
+    "csl": {
+      "DOI": "10.1007/s00134-024-07369-9",
+      "type": "journal-article",
+      "title": "European Society of Intensive Care Medicine clinical practice guideline on fluid therapy in adult critically ill patients. Part 1: the choice of resuscitation fluids",
+      "container-title": "Intensive Care Medicine",
+      "publisher": "Springer Science and Business Media LLC",
+      "issued": {
+        "date-parts": [
+          [
+            2024,
+            5,
+            21
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Yaseen M.",
+          "family": "Arabi"
+        },
+        {
+          "given": "Emilie",
+          "family": "Belley-Cote"
+        },
+        {
+          "given": "Andrea",
+          "family": "Carsetti"
+        },
+        {
+          "given": "Daniel",
+          "family": "De Backer"
+        },
+        {
+          "given": "Katia",
+          "family": "Donadello"
+        },
+        {
+          "given": "Nicole P.",
+          "family": "Juffermans"
+        },
+        {
+          "given": "Naomi",
+          "family": "Hammond"
+        },
+        {
+          "given": "Jon Henrik",
+          "family": "Laake"
+        },
+        {
+          "given": "Dawei",
+          "family": "Liu"
+        },
+        {
+          "given": "Kathryn",
+          "family": "Maitland"
+        },
+        {
+          "given": "Antonio",
+          "family": "Messina"
+        },
+        {
+          "given": "Morten Hylander",
+          "family": "Møller"
+        },
+        {
+          "given": "Daniele",
+          "family": "Poole"
+        },
+        {
+          "given": "Rob",
+          "family": "Mac Sweeney"
+        },
+        {
+          "given": "Jean-Louis",
+          "family": "Vincent"
+        },
+        {
+          "given": "Fernando G.",
+          "family": "Zampieri"
+        },
+        {
+          "given": "Fayez",
+          "family": "AlShamsi"
+        }
+      ],
+      "ISSN": [
+        "0342-4642",
+        "1432-1238"
+      ],
+      "page": "813-831",
+      "volume": "50",
+      "issue": "6",
+      "URL": "https://doi.org/10.1007/s00134-024-07369-9"
+    }
   }
 ]
