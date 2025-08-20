@@ -21,7 +21,9 @@ from zoneinfo import ZoneInfo
 from typing import Dict, List, Any
 
 from google.adk.agents import Agent
+from google.adk.tools import agent_tool
 from .db_agent import milvus_rag_agent, milvus_meta_info
+from .internet_agent import internet_search_agent
 
 # Optional dependencies loaded lazily inside tools
 # - google.genai for embeddings
@@ -46,7 +48,7 @@ root_agent = Agent(
 		"- For scientific paper content, use the paper_chunks database (collection).\n"
 		"- When answering questions about the database itself (e.g., which papers it contains, how many, titles/authors), use the papers_meta database via milvus_meta_info.\n"
 		"- When referencing sources, cite using only citation_key and doi (e.g., [citation_key | doi]).\n\n"
-		"When a question requires facts from the indexed paper(s), call milvus_semantic_search to retrieve passages, then synthesize a concise answer with the citations above. "
+		"When a question requires facts from the indexed paper(s), delegate to the Milvus RAG sub-agent to retrieve passages, then synthesize a concise answer with the citations above. "
 		"If nothing relevant is found, state that briefly and, if useful, ask a short clarifying question."
 	),
 	sub_agents=[milvus_rag_agent],
@@ -153,7 +155,7 @@ def milvus_semantic_search(query: str) -> Dict[str, Any]:
 		return {"status": "error", "error_message": f"Milvus search failed: {e}"}
 
 
-# Register tools with the agent
-root_agent.tools.append(milvus_semantic_search)
-root_agent.tools.append(milvus_meta_info)
+# Register only the internet search agent as a tool on the root agent.
+# Note: Per ADK limitations, when a built-in tool is present at the root, avoid mixing other tools here.
+root_agent.tools.append(agent_tool.AgentTool(agent=internet_search_agent))
 
