@@ -9,6 +9,7 @@ Subcommands:
 - md-with-images    Generate Markdown with images per paper under output/papers/<key>/md_with_images/.
 - prepare-rag       Extract references, strip them, and clean MD to produce -RAG.md per paper.
 - add-metadata      Add YAML metadata from input/input_pdf.json to each -RAG.md.
+- index             Chunk, embed, and index -RAG.md files into Milvus (journal_papers DB).
 - all               Run ingest-pdfs then prepare-outputs.
 
 Examples:
@@ -56,13 +57,14 @@ def cmd_prepare_outputs() -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(prog="docrag", description="Project orchestrator")
+    ap = argparse.ArgumentParser(prog="docrag", description="Project orchestrator", add_help=True)
     ap.add_argument(
-    "command",
-    choices=["ingest-pdfs", "prepare-outputs", "md-with-images", "prepare-rag", "add-metadata", "all"],
+        "command",
+        choices=["ingest-pdfs", "prepare-outputs", "md-with-images", "prepare-rag", "add-metadata", "index", "all"],
         help="Which step to run",
     )
-    args = ap.parse_args(argv)
+    # Accept and forward unknown args to sub-commands (e.g., --dry-run)
+    args, rest = ap.parse_known_args(argv)
 
     if args.command == "ingest-pdfs":
         cmd_ingest_pdfs()
@@ -71,43 +73,62 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "md-with-images":
         # Lazy import and run
         import importlib.util
+        import sys as _sys
         path = ROOT / "src" / "11_create_md_with_images.py"
         spec = importlib.util.spec_from_file_location("mdimgs_mod", path)
         if not spec or not spec.loader:
             raise RuntimeError("Could not load 11_create_md_with_images.py")
         mod = importlib.util.module_from_spec(spec)
+        _sys.modules[spec.name] = mod  # register for libraries relying on sys.modules
         spec.loader.exec_module(mod)  # type: ignore[attr-defined]
         mod.main()  # type: ignore[attr-defined]
     elif args.command == "prepare-rag":
         import importlib.util
+        import sys as _sys
         path = ROOT / "src" / "12_remove_refs_clean.py"
         spec = importlib.util.spec_from_file_location("ragprep_mod", path)
         if not spec or not spec.loader:
             raise RuntimeError("Could not load 12_remove_refs_clean.py")
         mod = importlib.util.module_from_spec(spec)
+        _sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)  # type: ignore[attr-defined]
-        mod.main()  # type: ignore[attr-defined]
+        mod.main(rest)  # type: ignore[attr-defined]
     elif args.command == "add-metadata":
         import importlib.util
+        import sys as _sys
         path = ROOT / "src" / "13_add_metada.py"
         spec = importlib.util.spec_from_file_location("addmeta_mod", path)
         if not spec or not spec.loader:
             raise RuntimeError("Could not load 13_add_metada.py")
         mod = importlib.util.module_from_spec(spec)
+        _sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)  # type: ignore[attr-defined]
-        mod.main()  # type: ignore[attr-defined]
+        mod.main(rest)  # type: ignore[attr-defined]
+    elif args.command == "index":
+        import importlib.util
+        import sys as _sys
+        path = ROOT / "src" / "14_index.py"
+        spec = importlib.util.spec_from_file_location("index_mod", path)
+        if not spec or not spec.loader:
+            raise RuntimeError("Could not load 14_index.py")
+        mod = importlib.util.module_from_spec(spec)
+        _sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        mod.main(rest)  # type: ignore[attr-defined]
     elif args.command == "all":
         cmd_ingest_pdfs()
         cmd_prepare_outputs()
         # Run md-with-images last
         import importlib.util
+        import sys as _sys
         path = ROOT / "src" / "11_create_md_with_images.py"
         spec = importlib.util.spec_from_file_location("mdimgs_mod", path)
         if not spec or not spec.loader:
             raise RuntimeError("Could not load 11_create_md_with_images.py")
         mod = importlib.util.module_from_spec(spec)
+        _sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)  # type: ignore[attr-defined]
-        mod.main()  # type: ignore[attr-defined]
+        mod.main(rest)  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":

@@ -35,3 +35,12 @@ Notes:
 - Run `uv run python main.py add-metadata` to prepend a YAML front matter to each `*-RAG.md` using entries in `input/input_pdf.json`.
 - Fields include: title, authors, doi, citation_key, journal, volume, issue, pages, issued (ISO), url, and source provenance.
 
+# step 5 - index into Milvus (Gemini embeddings)
+- Run `docker compose up -d` to ensure Milvus/Attu are up.
+- Run `uv run python main.py index` to:
+	- Use DB `journal_papers`.
+	- Ensure collections: `papers_meta` (one row per paper) and `paper_chunks` (chunked content + vectors).
+	- Skip papers that already exist by DOI or citation_key in `papers_meta`.
+	- Chunk by headings/paragraphs and embed with Gemini (`gemini-embedding-001`).
+	- Insert chunks referencing `paper_id`, `doi`, and `citation_key`.
+
