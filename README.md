@@ -1,31 +1,17 @@
-# docRAG (Gemini + Milvus + Docling)
+# docRAG (Docling + Gemini + Milvus)
 
-End-to-end pipeline to turn papers into a multimodal RAG index using:
-- Docling (PDF to Markdown with image refs)
+End-to-end pipeline to turn scientific PDFs into a multimodal RAG index using:
+- Docling (PDF → Markdown with image references)
 - Google Gemini (embeddings + agents)
 - Milvus (vector DB) with Attu UI
 - uv for Python env and scripts
 
-## Workflow
-1) PDF -> Markdown with image references (Docling)
-2) Extract citation metadata with a Gemini agent (optional)
-3) Merge citation metadata into the Markdown as YAML front matter
-4) Extract references/bibliography to structured JSON and exclude them from embedding
-5) Chunk Markdown semantically (headings -> paragraphs), keep image refs
-6) Embed chunks with Gemini and index in Milvus
-7) Query the Milvus collection (CLI or Attu UI)
+This README reflects the current pipeline scripts under `src/10..14_*.py` and the input orchestrator in `input/`.
 
-## Components
-- docker-compose.yml: Milvus stack + Attu UI
-- src/02_merger.py (aka 02_indexing.py): merge citation JSON into MD (YAML front matter)
-- agents/references_agent.py: extract references -> references.json
-- src/03_indexing.py: chunk + embed (Gemini) + insert into Milvus
-- RAG_milvus_demo/demo.py: query-only CLI using Gemini
+## TL;DR — Process a new PDF
+Prereqs: Docker, uv, and a Gemini API key exported as GEMINI_API_KEY (or GOOGLE_API_KEY).
 
-## Quick start
-Prereqs: Docker, uv, Gemini API key exported as GEMINI_API_KEY (or GOOGLE_API_KEY).
-
-1) Start Milvus
+1) Start Milvus stack
 ```bash
 docker compose up -d
 ```
@@ -35,84 +21,85 @@ docker compose up -d
 uv sync
 ```
 
-3) Merge citation metadata into Markdown
+3) Drop your PDF(s)
+- Put files into `input/pdf/` (or just `input/`; the orchestrator will move them).
+
+4) Build/refresh the input registry and prepare per-paper folders
 ```bash
-uv run python src/02_merger.py \
-  output/md_with_images/jama_summers_2025-with-image-refs.md \
-  --citations output/citations/jama_summers_2025-with-image-refs-genai.json
-# Output -> output/md_with_images/jama_summers_2025-with-image-refs-merged.md
+uv run python -m input.input              # extract title/doi, fetch CSL, create citation_key, rename PDFs, update input/input_pdf.json
+uv run python src/10_prepare_output_dirs.py
 ```
 
-4) Extract references/bibliography (structured JSON) to exclude from embedding
+5) Create Markdown with image references (Docling)
 ```bash
-uv run python agents/references_agent.py \
-  output/md_with_images/jama_summers_2025-with-image-refs-merged.md
-# Output -> output/md_with_images/references.json
+uv run python src/11_create_md_with_images.py
 ```
 
-5) Preview chunking (no embeddings)
+6) Create cleaned RAG Markdown (-RAG.md): extract/strip references and clean text
 ```bash
-uv run python src/03_indexing.py --dry-run --show 3
+uv run python src/12_remove_refs_clean.py           # process all
+# or a single file: --file output/papers/<key>/md_with_images/<key>-with-image-refs.md
 ```
 
-6) Index into Milvus (Gemini embeddings)
+7) Add YAML metadata to each -RAG.md from `input/input_pdf.json`
 ```bash
-export GEMINI_API_KEY=...  # or GOOGLE_API_KEY
-uv run python src/03_indexing.py \
-  --input output/md_with_images/jama_summers_2025-with-image-refs-merged.md \
-  --collection doc_md_multimodal \
+uv run python src/13_add_metada.py                  # process all -RAG.md
+# or a single file: --file output/papers/<key>/md_with_images/<key>-RAG.md
+```
+
+8) Index into Milvus (Gemini embeddings)
+```bash
+export GEMINI_API_KEY=...   # or GOOGLE_API_KEY
+uv run python src/14_index.py \
+  --db-name journal_papers \
+  --meta-collection papers_meta \
+  --collection paper_chunks \
   --embed-model gemini-embedding-001 \
   --embed-batch 64 \
-  --insert-batch 256
-```
-
-7) Query
-```bash
-uv run python RAG_milvus_demo/demo.py \
-  --collection doc_md_multimodal \
-  --query-only \
-  --query "What was the primary outcome?" \
+  --insert-batch 256 \
   --show 3
 ```
 
-8) Inspect in Attu
-- Open http://localhost:8000
-- Connect to milvus:19530 (or localhost:19530)
-- Explore collection `doc_md_multimodal`
+9) Query or inspect
+```bash
+uv run python RAG_milvus_demo/demo.py --collection paper_chunks --query-only --query "What was the primary outcome?" --show 3
+# Attu UI: http://localhost:8000 (connect to localhost:19530)
+```
 
-## Milvus schema per chunk
-- doi (from YAML front matter)
-- source (file path)
-- section (hierarchical heading path)
-- chunk_index (position)
-- hash (sha256 of text)
-- image_refs (pipe-separated list)
-- text (chunk content)
-- vector (FLOAT_VECTOR; COSINE; AUTOINDEX)
+Notes:
+- Use `uv run python src/14_index.py --dry-run --show 3` to preview chunking without embeddings/inserts.
+- To index a single paper, pass `--file output/papers/<key>/md_with_images/<key>-RAG.md` to step 8.
+
+## What lands where
+- Input PDFs: `input/pdf/<citation_key>.pdf`
+- Registry: `input/input_pdf.json` (records with citation_key, title, doi, csl)
+- Per-paper folder: `output/papers/<citation_key>/`
+- Markdown with image refs: `output/papers/<key>/md_with_images/<key>-with-image-refs.md`
+- Cleaned RAG Markdown: `output/papers/<key>/md_with_images/<key>-RAG.md`
+
+## Milvus layout (DB: journal_papers)
+- papers_meta (1 row per paper)
+  - id (PK auto), doi, citation_key, title, journal, issued, url, source_path
+- paper_chunks (RAG content)
+  - id (PK auto), paper_id, doi, citation_key, section, chunk_index, hash, image_refs, text, vector
+
+Collections use COSINE metric with AUTOINDEX. Re-indexing is idempotent at the paper level: if a paper exists in `papers_meta` (by DOI or citation_key), its chunks are skipped.
 
 ## Why Markdown (with YAML)
-- Human-readable, easy to audit
+- Human-readable and easy to audit
 - Preserves image links for multimodal use
-- YAML front matter carries bibliographic context
-
-## Implemented
-- Persistent Milvus + Attu via docker-compose
-- Merge citation JSON -> YAML in Markdown
-- References extractor (Gemini structured output) -> references.json
-- Semantic chunking (headings/paragraphs) with safe splitting for VARCHAR limits
-- Gemini embeddings and Milvus indexing
-- Query-only CLI that embeds queries with Gemini
-
-## Missing / Next
-- Exclude references during indexing automatically (use references.json or cut at "## References")
-- Dedup/idempotent re-index (hash pre-check + pagination)
-- Add chunk-level metadata (page numbers, figure ids) if available
-- Image embeddings / multimodal fusion (optional)
-- Reranking + answer generation with Gemini LLM
-- Tests/CI and docling PDF automation script
+- YAML carries bibliographic context (DOI, authors, journal, etc.)
 
 ## Troubleshooting
-- API key: export GEMINI_API_KEY or GOOGLE_API_KEY
-- Milvus up: docker compose up -d; check Attu at http://localhost:8000
-- No hits: confirm collection name and that indexing completed
-- Long text: indexer splits long paragraphs to fit Milvus VARCHAR(8192)
+- API key: export `GEMINI_API_KEY` (or `GOOGLE_API_KEY`)
+- Milvus: `docker compose up -d`; Attu at http://localhost:8000
+- No rows: ensure steps 6–8 completed and collection names match
+- Long text: the indexer splits paragraphs to fit Milvus VARCHAR limits
+
+## Related scripts
+- `src/10_prepare_output_dirs.py` — makes `output/papers/<key>/`
+- `src/11_create_md_with_images.py` — Docling PDF→MD with images
+- `src/12_remove_refs_clean.py` — references extraction and cleaning → `-RAG.md`
+- `src/13_add_metada.py` — YAML metadata from `input/input_pdf.json`
+- `src/14_index.py` — chunk + embed + insert into Milvus (`journal_papers` DB)
+- `RAG_milvus_demo/demo.py` — quick query CLI
