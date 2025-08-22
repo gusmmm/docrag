@@ -3,10 +3,10 @@ from __future__ import annotations
 """
 Step 5: Chunk, embed, and index -RAG.md files into Milvus.
 
-Database layout (Milvus DB: journal_papers):
-- papers_meta (one row per paper):
+Database layout:
+- papers_meta (one row per paper) in the metadata DB (default: journal_papers):
   id (PK, auto), doi, citation_key, title, journal, issued, url, source_path
-- paper_chunks (content + vectors):
+- paper_chunks (content + vectors) in the target chunks DB:
   id (PK, auto), paper_id (FK-like), doi, citation_key, section, chunk_index, hash, image_refs, text, vector
 
 Behavior:
@@ -14,8 +14,12 @@ Behavior:
 - Chunking preserves headings context and image references; embeddings use Gemini (gemini-embedding-001).
 
 Usage:
-  uv run python src/14_index.py --dry-run --show 3
-  uv run python src/14_index.py --collection paper_chunks --meta-collection papers_meta
+    uv run python src/14_index.py --dry-run --show 3
+    uv run python src/14_index.py --collection paper_chunks --meta-collection papers_meta
+    # Topic-aware indexing (automatic):
+    # - Reads input/input_pdf.json for each citation_key to find optional "topic".
+    # - Inserts bibliographic row into --meta-db-name (papers_meta),
+    #   and chunk rows into the DB named after the topic (or --db-name if no topic).
 """
 
 import argparse
@@ -26,6 +30,7 @@ import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+import json
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -275,6 +280,42 @@ def milvus_connect_or_create_db(host: str, port: int, db_name: str):
             print("[warn] Milvus server/client doesn't support named databases or 'journal_papers' is unavailable; using default database.")
 
 
+def milvus_connect_db_with_fallback(host: str, port: int, db_name: str) -> bool:
+    """Try connecting to a named database. Return True if connected to that DB; False if fell back to default.
+
+    Attempts to create the DB when supported; falls back to default on unsupported servers.
+    """
+    from pymilvus import connections
+    try:
+        connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
+        return True
+    except Exception:
+        # Try to create DB if API available
+        try:
+            connections.connect(alias="bootstrap", host=host, port=str(port))
+            try:
+                from pymilvus import db
+                list_dbs = getattr(db, "list_databases", None) or getattr(db, "list_database", None)
+                create_db = getattr(db, "create_database", None)
+                if callable(list_dbs) and callable(create_db):
+                    if db_name not in list_dbs():
+                        create_db(db_name)
+            except Exception:
+                pass
+        finally:
+            try:
+                connections.disconnect("bootstrap")
+            except Exception:
+                pass
+        try:
+            connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
+            return True
+        except Exception:
+            connections.connect(alias="default", host=host, port=str(port))
+            print(f"[warn] Named databases unsupported or unavailable; using default DB for '{db_name}'.")
+            return False
+
+
 def ensure_database(db_name: str):
     """Deprecated: database creation is handled in milvus_connect_or_create_db."""
     return
@@ -458,12 +499,13 @@ def discover_rag_files() -> List[Path]:
 
 
 def main(argv: List[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(description="Index -RAG.md into Milvus (journal_papers DB)")
+    ap = argparse.ArgumentParser(description="Index -RAG.md into Milvus (topic-aware: metadata in meta DB; chunks in per-topic DB)")
     ap.add_argument("--collection", default="paper_chunks", help="Chunks collection name")
     ap.add_argument("--meta-collection", default="papers_meta", help="Papers metadata collection name")
     ap.add_argument("--milvus-host", default="127.0.0.1")
     ap.add_argument("--milvus-port", type=int, default=19530)
-    ap.add_argument("--db-name", default="journal_papers")
+    ap.add_argument("--db-name", default="journal_papers", help="Default chunks DB name when no topic is specified")
+    ap.add_argument("--meta-db-name", default="journal_papers", help="Metadata DB name where papers_meta lives")
     ap.add_argument("--embed-model", default="gemini-embedding-001")
     ap.add_argument("--embed-batch", type=int, default=64)
     ap.add_argument("--insert-batch", type=int, default=256)
@@ -472,12 +514,25 @@ def main(argv: List[str] | None = None) -> None:
     ap.add_argument("--no-prepend-section", action="store_false", dest="prepend_section")
     ap.set_defaults(prepend_section=True)
     ap.add_argument("--file", default=None, help="Index a single -RAG.md file")
+    ap.add_argument("--force-reindex-chunks", action="store_true", help="When a paper already exists in metadata, reinsert chunks into the target collection (do not duplicate metadata)")
     args = ap.parse_args(argv)
 
     files = [Path(args.file)] if args.file else discover_rag_files()
     if not files:
         print("No -RAG.md files found to index.")
         return
+
+    # Load registry to map citation_key -> topic
+    reg_path = ROOT / "input" / "input_pdf.json"
+    reg_map: Dict[str, Dict[str, Any]] = {}
+    try:
+        reg = json.loads(reg_path.read_text(encoding="utf-8"))
+        for r in reg:
+            k = str(r.get("citation_key") or "").strip()
+            if k:
+                reg_map[k] = r
+    except Exception:
+        pass
 
     # If dry-run, just preview chunking without touching Milvus
     if args.dry_run:
@@ -495,15 +550,9 @@ def main(argv: List[str] | None = None) -> None:
                     print()
         return
 
-    # Milvus connect and ensure DB/collections only for actual indexing
-    milvus_connect_or_create_db(args.milvus_host, args.milvus_port, db_name=args.db_name)
-    from pymilvus import Collection
-    meta_coll = ensure_meta_collection(args.meta_collection)
-    # Load meta collection once for subsequent queries
-    try:
-        meta_coll.load()
-    except Exception:
-        pass
+    # Helper: get key from path and topic from registry
+    def _key_from_rag_path(p: Path) -> str:
+        return p.parent.parent.name
 
     indexed = 0
     for md_path in files:
@@ -516,9 +565,32 @@ def main(argv: List[str] | None = None) -> None:
         issued = (meta.get("issued") or "").strip()
         url = (meta.get("url") or "").strip()
 
+        # Connect to meta DB and ensure meta collection
+        milvus_connect_or_create_db(args.milvus_host, args.milvus_port, db_name=args.meta_db_name)
+        from pymilvus import Collection  # local import after connection
+        meta_coll = ensure_meta_collection(args.meta_collection)
+        try:
+            meta_coll.load()
+        except Exception:
+            pass
+
+        existing_paper_id: Optional[int] = None
         if paper_exists(meta_coll, doi, citation_key):
-            print(f"[skip] Already indexed: doi={doi or '-'} key={citation_key or '-'}")
-            continue
+            if not args.force_reindex_chunks:
+                print(f"[skip] Already indexed: doi={doi or '-'} key={citation_key or '-'}")
+                continue
+            # Query existing paper_id to avoid duplicating metadata
+            try:
+                try:
+                    meta_coll.load()
+                except Exception:
+                    pass
+                expr = f'doi == "{doi.replace("\"", "\\\"")}"' if doi else f'citation_key == "{citation_key.replace("\"", "\\\"")}"'
+                res = meta_coll.query(expr=expr, output_fields=["id"], limit=1)
+                if res:
+                    existing_paper_id = int(res[0]["id"])  # type: ignore[index]
+            except Exception:
+                existing_paper_id = None
 
         chunks = chunk_markdown(body)
         print(f"Parsed chunks: {len(chunks)} from {md_path}")
@@ -536,22 +608,41 @@ def main(argv: List[str] | None = None) -> None:
             print("[warn] No embeddings produced; skipping file")
             continue
         dim = len(vectors[0])
-        chunks_coll = ensure_chunks_collection(args.collection, dim=dim)
+        # Determine target DB for chunks: topic db or default
+        key = _key_from_rag_path(md_path)
+        topic = (reg_map.get(key, {}).get("topic") or "").strip()
+        target_db = topic if topic else args.db_name
+        # If named DBs unsupported, fallback to suffixed collection name
+        db_supported = milvus_connect_db_with_fallback(args.milvus_host, args.milvus_port, db_name=target_db)
+        effective_collection = args.collection if db_supported else f"{args.collection}__{target_db}"
+        chunks_coll = ensure_chunks_collection(effective_collection, dim=dim)
 
-        # Insert meta first to get paper_id
-        paper_id = insert_paper_meta(
-            meta_coll,
-            doi=doi,
-            citation_key=citation_key,
-            title=title,
-            journal=journal,
-            issued=issued,
-            url=url,
-            source_path=str(md_path),
-        )
+        # Insert meta first to get paper_id (meta DB) unless reusing existing
+        milvus_connect_or_create_db(args.milvus_host, args.milvus_port, db_name=args.meta_db_name)
+        meta_coll = ensure_meta_collection(args.meta_collection)
+        if existing_paper_id is not None:
+            paper_id = existing_paper_id
+        else:
+            paper_id = insert_paper_meta(
+                meta_coll,
+                doi=doi,
+                citation_key=citation_key,
+                title=title,
+                journal=journal,
+                issued=issued,
+                url=url,
+                source_path=str(md_path),
+            )
+        # Insert chunks in target DB
+        if db_supported:
+            milvus_connect_or_create_db(args.milvus_host, args.milvus_port, db_name=target_db)
+        else:
+            milvus_connect_or_create_db(args.milvus_host, args.milvus_port, db_name=args.db_name)
+        chunks_coll = ensure_chunks_collection(effective_collection, dim=dim)
         insert_chunks(chunks_coll, paper_id=paper_id, doi=doi, citation_key=citation_key, chunks=chunks, vectors=vectors, insert_batch=args.insert_batch)
         indexed += 1
-        print(f"[ok] Indexed {len(chunks)} chunks for paper_id={paper_id}")
+        loc = f"DB='{target_db}'" if db_supported else f"collection='{effective_collection}' (default DB)"
+        print(f"[ok] Indexed {len(chunks)} chunks for paper_id={paper_id} into {loc}")
 
     if indexed == 0:
         print("No new papers indexed.")

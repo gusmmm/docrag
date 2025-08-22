@@ -35,6 +35,22 @@ def _import_convert():
     return getattr(mod, "convert_with_image_annotation")
 
 
+def _find_pdf_for_key(key: str) -> Path | None:
+    base_input = ROOT / "input"
+    # 1) Standard location
+    p = base_input / "pdf" / f"{key}.pdf"
+    if p.exists():
+        return p
+    # 2) Topics: input/topics/<topic>/<key>.pdf
+    topics_dir = base_input / "topics"
+    if topics_dir.exists():
+        for tdir in sorted(d for d in topics_dir.iterdir() if d.is_dir()):
+            tp = tdir / f"{key}.pdf"
+            if tp.exists():
+                return tp
+    return None
+
+
 def create_md_for_paper(key_dir: Path) -> Tuple[bool, Path | None]:
     """Create md_with_images for a single paper dir if missing.
 
@@ -46,9 +62,9 @@ def create_md_for_paper(key_dir: Path) -> Tuple[bool, Path | None]:
         print(f"[skip] {key}: md_with_images/ already exists")
         return (False, None)
 
-    pdf_path = ROOT / "input" / "pdf" / f"{key}.pdf"
-    if not pdf_path.exists():
-        print(f"[warn] {key}: PDF not found at {pdf_path}, skipping")
+    pdf_path = _find_pdf_for_key(key)
+    if not pdf_path:
+        print(f"[warn] {key}: PDF not found under input/pdf/ or input/topics/, skipping")
         return (False, None)
 
     md_dir.mkdir(parents=True, exist_ok=True)

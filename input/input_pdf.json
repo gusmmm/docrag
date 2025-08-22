@@ -968,5 +968,49 @@
       "issue": "6",
       "URL": "https://doi.org/10.1007/s00134-024-07369-9"
     }
+  },
+  {
+    "citation_key": "gaudry2025renalreplacementtherapy",
+    "title": "Renal replacement therapy",
+    "doi": "10.1007/s00134-025-07987-x",
+    "csl": {
+      "DOI": "10.1007/s00134-025-07987-x",
+      "type": "journal-article",
+      "title": "Renal replacement therapy",
+      "container-title": "Intensive Care Medicine",
+      "publisher": "Springer Science and Business Media LLC",
+      "issued": {
+        "date-parts": [
+          [
+            2025,
+            6,
+            25
+          ]
+        ]
+      },
+      "author": [
+        {
+          "given": "Stéphane",
+          "family": "Gaudry"
+        },
+        {
+          "given": "Nattachai",
+          "family": "Srisawat"
+        },
+        {
+          "given": "Michael",
+          "family": "Joannidis"
+        }
+      ],
+      "ISSN": [
+        "0342-4642",
+        "1432-1238"
+      ],
+      "page": "1514-1517",
+      "volume": "51",
+      "issue": "8",
+      "URL": "https://doi.org/10.1007/s00134-025-07987-x"
+    },
+    "topic": "renal_replacement_therapy"
   }
 ]

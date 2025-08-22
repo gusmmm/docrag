@@ -23,6 +23,7 @@ uv sync
 
 3) Drop your PDF(s)
 - Put files into `input/pdf/` (or just `input/`; the orchestrator will move them).
+ - Optional topics: create folders under `input/topics/<topic>/` and put related PDFs there. The folder name becomes the Milvus database for chunk storage. Bibliographic rows still go to the metadata DB (`papers_meta`).
 
 4) Build/refresh the input registry and prepare per-paper folders
 ```bash
@@ -52,6 +53,7 @@ uv run python src/13_add_metada.py                  # process all -RAG.md
 export GEMINI_API_KEY=...   # or GOOGLE_API_KEY
 uv run python src/14_index.py \
   --db-name journal_papers \
+  --meta-db-name journal_papers \
   --meta-collection papers_meta \
   --collection paper_chunks \
   --embed-model gemini-embedding-001 \
@@ -79,6 +81,7 @@ Notes:
 Notes:
 - Use `uv run python src/14_index.py --dry-run --show 3` to preview chunking without embeddings/inserts.
 - To index a single paper, pass `--file output/papers/<key>/md_with_images/<key>-RAG.md` to step 8.
+ - Topic-aware indexing: if a paper was ingested from `input/topics/<topic>/`, its chunks are stored in DB `<topic>`, while `papers_meta` stays in the metadata DB (`--meta-db-name`, default `journal_papers`).
 
 ## What lands where
 - Input PDFs: `input/pdf/<citation_key>.pdf`

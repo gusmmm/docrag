@@ -67,7 +67,7 @@ def cmd_full_pipeline(rest: list[str] | None = None) -> None:
     3) md-with-images   (src/11_create_md_with_images.py)
     4) prepare-rag      (src/12_remove_refs_clean.py)
     5) add-metadata     (src/13_add_metada.py)
-    6) index            (src/14_index.py)
+    6) index            (src/14_index.py) — topic-aware: chunks go to per-topic DB if input record has a topic; metadata goes to meta DB.
 
     Extra args (rest) are forwarded to the final index step, e.g., --show 3.
     """
@@ -109,7 +109,7 @@ def cmd_full_pipeline(rest: list[str] | None = None) -> None:
     spec.loader.exec_module(mod)  # type: ignore[attr-defined]
     mod.main([])  # type: ignore[attr-defined]
 
-    # 6) index (forward any extra args to allow --show/--dry-run/etc.)
+    # 6) index (forward any extra args to allow --show/--dry-run/etc.; topic-aware happens inside 14_index.py)
     path = ROOT / "src" / "14_index.py"
     spec = _ilu.spec_from_file_location("index_mod", path)
     if not spec or not spec.loader:
