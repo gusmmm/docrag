@@ -37,6 +37,9 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# Cache whether Milvus named databases are supported/usable in this run
+_NAMED_DB_SUPPORTED: Optional[bool] = None
+
 
 # --- Front matter parsing (minimal YAML subset) ---
 
@@ -242,78 +245,114 @@ def embed_texts(texts: Sequence[str], model: str = "gemini-embedding-001", batch
 # --- Milvus helpers ---
 
 def milvus_connect_or_create_db(host: str, port: int, db_name: str):
+    """Connect to a Milvus database, creating it if supported and missing.
+
+    Avoids initial connect with db_name to reduce RPC error logs on servers without DB support.
+    """
     from pymilvus import connections
+    global _NAMED_DB_SUPPORTED
+    # Preflight on default connection for DB API support and creation
     try:
-        # Try connect directly to target DB
-        connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
-        return
-    except Exception as e:
-        # If database not found, connect to default and create it, then reconnect
+        connections.connect(alias="bootstrap", host=host, port=str(port))
         try:
-            connections.connect(alias="bootstrap", host=host, port=str(port))
-            try:
-                from pymilvus import db
-                # Support both list_databases (>=2.3) and list_database (older)
-                list_dbs = getattr(db, "list_databases", None) or getattr(db, "list_database", None)
-                create_db = getattr(db, "create_database", None)
-                if callable(list_dbs) and callable(create_db):
-                    try:
-                        if db_name not in list_dbs():
-                            create_db(db_name)
-                    except Exception:
-                        # Ignore and fallback to default DB later
-                        pass
-            except Exception:
-                # Older pymilvus without db API; assume single default database
-                pass
+            from pymilvus import db
+            list_dbs = getattr(db, "list_databases", None) or getattr(db, "list_database", None)
+            create_db = getattr(db, "create_database", None)
+            if callable(list_dbs) and callable(create_db):
+                try:
+                    if db_name not in (list_dbs() or []):
+                        create_db(db_name)
+                except Exception:
+                    # Ignore and fallback later
+                    pass
+            else:
+                # No DB API; connect to default only
+                try:
+                    connections.disconnect("bootstrap")
+                except Exception:
+                    pass
+                connections.connect(alias="default", host=host, port=str(port))
+                print("[warn] Milvus named databases unsupported; using default database.")
+                _NAMED_DB_SUPPORTED = False
+                return
         finally:
             try:
                 connections.disconnect("bootstrap")
             except Exception:
                 pass
-        # Retry connecting to the requested DB (may still fail if server lacks DB support)
+        # Try to connect to the requested DB now
         try:
             connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
+            _NAMED_DB_SUPPORTED = True
+            return
         except Exception:
-            # Fallback: connect without db_name to the default database
+            # Fallback to default
             connections.connect(alias="default", host=host, port=str(port))
-            print("[warn] Milvus server/client doesn't support named databases or 'journal_papers' is unavailable; using default database.")
+            print("[warn] Milvus server/client couldn't open named database; using default database.")
+            _NAMED_DB_SUPPORTED = False
+            return
+    except Exception:
+        # As a last resort, connect to default
+        connections.connect(alias="default", host=host, port=str(port))
+        print("[warn] Milvus connection fallback to default database.")
+        if _NAMED_DB_SUPPORTED is None:
+            _NAMED_DB_SUPPORTED = False
 
 
 def milvus_connect_db_with_fallback(host: str, port: int, db_name: str) -> bool:
-    """Try connecting to a named database. Return True if connected to that DB; False if fell back to default.
+    """Connect to a specific DB if supported, else to the default DB.
 
-    Attempts to create the DB when supported; falls back to default on unsupported servers.
+    Returns True if connected to the named DB, False if fell back to default.
     """
     from pymilvus import connections
-    try:
-        connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
-        return True
-    except Exception:
-        # Try to create DB if API available
+    global _NAMED_DB_SUPPORTED
+    if _NAMED_DB_SUPPORTED is False:
+        # Skip trying named DB connects entirely
         try:
-            connections.connect(alias="bootstrap", host=host, port=str(port))
-            try:
-                from pymilvus import db
-                list_dbs = getattr(db, "list_databases", None) or getattr(db, "list_database", None)
-                create_db = getattr(db, "create_database", None)
-                if callable(list_dbs) and callable(create_db):
-                    if db_name not in list_dbs():
+            connections.connect(alias="default", host=host, port=str(port))
+        except Exception:
+            pass
+        return False
+    # Preflight using default to avoid RPC errors
+    try:
+        connections.connect(alias="bootstrap", host=host, port=str(port))
+        try:
+            from pymilvus import db
+            list_dbs = getattr(db, "list_databases", None) or getattr(db, "list_database", None)
+            create_db = getattr(db, "create_database", None)
+            if callable(list_dbs) and callable(create_db):
+                try:
+                    if db_name not in (list_dbs() or []):
                         create_db(db_name)
-            except Exception:
-                pass
+                except Exception:
+                    pass
+                # Try named DB connect
+                try:
+                    connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
+                    _NAMED_DB_SUPPORTED = True
+                    return True
+                except Exception:
+                    connections.connect(alias="default", host=host, port=str(port))
+                    print(f"[warn] Could not open DB '{db_name}'; using default DB.")
+                    _NAMED_DB_SUPPORTED = False
+                    return False
+            else:
+                # No DB API
+                connections.connect(alias="default", host=host, port=str(port))
+                print(f"[warn] Named databases unsupported; using default DB for '{db_name}'.")
+                _NAMED_DB_SUPPORTED = False
+                return False
         finally:
             try:
                 connections.disconnect("bootstrap")
             except Exception:
                 pass
-        try:
-            connections.connect(alias="default", host=host, port=str(port), db_name=db_name)
-            return True
-        except Exception:
-            connections.connect(alias="default", host=host, port=str(port))
-            print(f"[warn] Named databases unsupported or unavailable; using default DB for '{db_name}'.")
-            return False
+    except Exception:
+        connections.connect(alias="default", host=host, port=str(port))
+        print(f"[warn] Milvus connection fallback to default DB for '{db_name}'.")
+        if _NAMED_DB_SUPPORTED is None:
+            _NAMED_DB_SUPPORTED = False
+        return False
 
 
 def ensure_database(db_name: str):
@@ -573,6 +612,28 @@ def main(argv: List[str] | None = None) -> None:
             meta_coll.load()
         except Exception:
             pass
+
+        # Handle non-journal PDFs (no DOI): assign a stable synthetic document ID and mock citation_key
+        def _is_real_doi(s: str) -> bool:
+            return bool(s) and s.startswith("10.")
+        if not _is_real_doi(doi):
+            # Use content hash of the RAG body as synthetic ID so it stays stable across runs
+            try:
+                synthetic = "doc:" + _sha256(body)[:16]
+            except Exception:
+                synthetic = "doc:" + _sha256(str(md_path))[:16]
+            doi = synthetic
+            if not citation_key:
+                # Create a mock citation key based on filename and hash suffix
+                base = md_path.stem.lower()
+                base = re.sub(r"[^a-z0-9]+", "", base) or "doc"
+                citation_key = f"{base}{synthetic[-8:]}"
+            if not title:
+                title = md_path.stem
+            if not journal:
+                journal = "grey-literature"
+            if not url:
+                url = f"file://{md_path}"
 
         existing_paper_id: Optional[int] = None
         if paper_exists(meta_coll, doi, citation_key):

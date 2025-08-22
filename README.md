@@ -103,6 +103,16 @@ Collections use COSINE metric with AUTOINDEX. Re-indexing is idempotent at the p
 - Preserves image links for multimodal use
 - YAML carries bibliographic context (DOI, authors, journal, etc.)
 
+## Non-journal PDFs (grey literature)
+
+When a PDF isn’t a scientific journal article (no DOI is detected by the input checker):
+- The orchestrator assigns a stable synthetic DOI `doc:<hash>` computed from the PDF bytes.
+- A mock `citation_key` is generated from the filename plus a hash suffix.
+- Metadata is inserted with:
+  - `doi = doc:<hash>`, `title = <filename>` (if unknown), `journal = grey-literature`, and a `file://` URL.
+- Chunks are embedded and indexed under the topic’s database/collection as usual:
+  - If named DBs unsupported, they go to `paper_chunks__<topic>` in the default DB.
+
 ## Troubleshooting
 - API key: export `GEMINI_API_KEY` (or `GOOGLE_API_KEY`)
 - Milvus: `docker compose up -d`; Attu at http://localhost:8000

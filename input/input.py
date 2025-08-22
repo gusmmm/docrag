@@ -108,6 +108,21 @@ def main() -> None:
 		print(f"Extracting from: {pdf.name} ...")
 		res = check_pdf(pdf)
 
+		# If no real DOI was found, assign a stable synthetic one based on PDF content
+		def _is_real_doi(s: str) -> bool:
+			return bool(s) and s.startswith("10.")
+		if not _is_real_doi(res.doi):
+			try:
+				import hashlib
+				h = hashlib.sha256(pdf.read_bytes()).hexdigest()[:16]
+				synthetic_doi = f"doc:{h}"
+			except Exception:
+				synthetic_doi = "doc:unknown"
+			# Patch result fields to propagate to registry and YAML later
+			res.doi = synthetic_doi
+			if res.title.lower() == "unknown":
+				res.title = pdf.stem
+
 		# Compose record
 		record: Dict[str, Any] = {
 			"citation_key": res.citation_key,
